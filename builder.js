@@ -152,7 +152,7 @@ import {
 
         if (control) {
             control.title = event.target.innerText;
-            refreshEventRegistrations();
+            reload();
             refreshConditions();
         }
     }
@@ -252,7 +252,7 @@ import {
 
         form.render(html => {
             editor.innerHTML = html;
-            refreshEventRegistrations();
+            reload();
             refreshConditions();
         });
     }
@@ -274,7 +274,9 @@ import {
         });
     }
 
-    function refreshEventRegistrations() {
+    function reload() {
+        addExternalStyles();
+
         document.querySelectorAll('.cf-control>span').forEach(element => {
             element.removeEventListener('change', onInputChanged);
             element.addEventListener('change', onInputChanged);
@@ -294,9 +296,15 @@ import {
 
         refreshConditions();
     }
+
+    function addExternalStyles() {
+        document.querySelectorAll('.cf-control').forEach(element => element.classList.add('form-group'));
+        document.querySelectorAll('.cf-element-template').forEach(element => element.classList.add('btn', 'btn-primary'));
+    }
+
     //**********************************************************************
     let form = new CustomForm();
     setDragDrop();
-    refreshEventRegistrations();
+    reload();
     //**********************************************************************
 })(document.getElementById('form-builder'));
