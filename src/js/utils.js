@@ -1,7 +1,7 @@
-import * as uuid from 'uuid/v4';
+const uuidv4 = require('uuid/v4');
 
 export function uniqueId() {
-    return uuid();
+    return uuidv4();
 }
 
 export function getControl(form, id) {

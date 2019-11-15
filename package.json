@@ -1,36 +1,22 @@
 {
-    "name": "form-builder",
+    "name": "src",
     "version": "1.0.0",
-    "description": "Minimalistic form builder library using vanilla javascript",
+    "description": "",
     "main": "index.js",
     "scripts": {
-        "build": "webpack"
+        "prebuild": "rmdir dist /s /q",
+        "dev": "parcel ./src/index.html --open",
+        "build": "parcel build ./src/js/index.js --no-source-maps"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/stackpond/form-builder.git"
-    },
+    "keywords": [],
     "author": "",
     "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/stackpond/form-builder/issues"
-    },
-    "homepage": "https://github.com/stackpond/form-builder#readme",
-    "devDependencies": {
-        "@babel/core": "^7.7.2",
-        "@babel/preset-env": "^7.7.1",
-        "@babel/preset-typescript": "^7.7.2",
-        "babel-loader": "^8.0.6",
-        "css-loader": "^3.2.0",
-        "html-webpack-plugin": "^3.2.0",
-        "mini-css-extract-plugin": "^0.8.0",
-        "style-loader": "^1.0.0",
-        "webpack": "^4.41.2",
-        "webpack-cli": "^3.3.10",
-        "webpack-dev-server": "^3.9.0"
-    },
     "dependencies": {
         "json-logic-js": "^1.2.2",
         "uuid": "^3.3.3"
+    },
+    "devDependencies": {
+        "cssnano": "^4.1.10",   
+        "parcel-plugin-clean-dist": "0.0.6"
     }
 }

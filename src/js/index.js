@@ -1,4 +1,4 @@
-import './styles.css'
+import '../css/index.css'
 
 import {
     CustomForm
@@ -27,7 +27,7 @@ import {
     createElement,
 } from './utils.js';
 
-export class FormBuilder {
+window.FormBuilder = class FormBuilder {
     load(mainContainer) {
         let topRow = document.createElement('div');
         let bottomRow = document.createElement('div');
