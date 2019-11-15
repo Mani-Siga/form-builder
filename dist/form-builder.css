@@ -1,0 +1,79 @@
+.cf-builder-container {
+    padding: 5px;
+    display: grid;
+    grid-gap: 5px;
+    grid-template-rows: 1fr auto;
+}
+
+.cf-top-row {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: auto 1fr;
+}
+
+.cf-bottom-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.cf-templates-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.cf-editor {
+    padding: 5px;
+}
+
+.cf-element-template {
+    margin: 5px;
+    text-align: center;
+}
+
+.cf-condition-row {
+    padding: 5px;
+    margin-top: 1px;
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(9, 1fr);
+    grid-auto-rows: auto;
+    align-items: center;
+}
+
+.cf-box {
+    border: 1px dashed black;
+}
+
+.cf {
+    display: grid;
+    grid-gap: 5px;
+}
+
+.cf-section {
+    display: flex;
+}
+
+.cf-control {
+    padding: 5px;
+    display: grid;
+    grid-gap: 10px;
+    grid-auto-columns: auto;
+    grid-template-rows: auto 1fr;
+    align-items: center;
+}
+
+.cf-control>h1 {
+    margin: 0;
+}
+
+.cf-control>label {
+    min-width: 100px;
+}
+
+.cf-section:hover {
+    background-color:lightsalmon;
+}
+
+.cf-control-hidden {
+    display: none;
+}

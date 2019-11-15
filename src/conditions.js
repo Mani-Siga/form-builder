@@ -2,6 +2,8 @@ import {
     uniqueId
 } from './utils.js'
 
+import jsonLogic from 'json-logic-js'
+
 class If {
     constructor(value) {
         this.value = value;

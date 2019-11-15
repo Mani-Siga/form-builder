@@ -1,5 +1,7 @@
+import * as uuid from 'uuid/v4';
+
 export function uniqueId() {
-    return uuid.v4();
+    return uuid();
 }
 
 export function getControl(form, id) {
