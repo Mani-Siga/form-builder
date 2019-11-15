@@ -4,9 +4,7 @@
     "description": "Minimalistic form builder library using vanilla javascript",
     "main": "index.js",
     "scripts": {
-        "start": "webpack-dev-server --mode development",
-        "build": "webpack",
-        "dev": "webpack --mode development"
+        "build": "webpack"
     },
     "repository": {
         "type": "git",

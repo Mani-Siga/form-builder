@@ -8,7 +8,9 @@ module.exports = {
             './src/index.js'
         ]
     },
+    devtool: 'source-map',
     output: {
+        libraryTarget: 'umd',
         filename: 'form-builder.js',
         path: path.resolve(__dirname, 'dist')
     },
@@ -36,15 +38,6 @@ module.exports = {
         ]
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            title: 'Simple Form Builder',
-            template: './src/index.html',
-            inject: true,
-            minify: {
-                removeComments: true,
-                collapseWhitespace: false
-            }
-        }),
         new MiniCssExtractPlugin({
             filename: 'form-builder.css',
             chunkFilename: '[id].css',
