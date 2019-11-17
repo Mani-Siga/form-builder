@@ -164,7 +164,16 @@ window.FormBuilder = class FormBuilder {
             let control = getControl(form, event.target.closest('.cf-control').id);
 
             if (control) {
-                evaluateConditions(control, event.target.value);
+                let selectedValue = event.target.value;
+
+                if (['dropdownlist'].includes(control.templateName)) {
+                    let element = event.target;
+                    selectedValue = element[element.selectedIndex].text;
+                } else if (['radiogroup', 'checkboxgroup'].includes(control.templateName)) {
+                    selectedValue = event.target.getAttribute('data-text');
+                }
+
+                evaluateConditions(control, selectedValue);
             }
         }
 
@@ -239,41 +248,44 @@ window.FormBuilder = class FormBuilder {
             });
         }
 
-        function onElementDragStarted(event) {
+        function onTemplateDragStarted(event) {
             event.dataTransfer.setData("templateName", event.target.getAttribute('data-cf-template-name'));
         }
 
-        function onElementDraggedOver(event) {
+        function onTemplateDraggedOver(event) {
             event.preventDefault();
         }
 
-        function onElementDropped(event) {
-            let elementTemplateTag = event.dataTransfer.getData("templateName");
-            let elementTemplate = elementTemplates.find(d => d.name === elementTemplateTag);
-            let formSection = form.addSection();
-            elementTemplate.copyTo(formSection);
+        function onTemplateDropped(event) {
+            let templateTag = event.dataTransfer.getData("templateName");
+            let template = elementTemplates.find(d => d.name === templateTag);
 
-            form.render(html => {
-                editor.innerHTML = html;
-                reload();
-                refreshConditions();
-            });
+            if (template) {
+                let section = form.addSection();
+                template.copyTo(section);
+
+                form.render(html => {
+                    editor.innerHTML = html;
+                    reload();
+                    refreshConditions();
+                });
+            }
         }
 
         function setDragDrop() {
             document.querySelectorAll('.cf-element-template').forEach(element => {
                 element.setAttribute('draggable', "true");
 
-                element.removeEventListener('dragstart', onElementDragStarted);
-                element.addEventListener('dragstart', onElementDragStarted);
+                element.removeEventListener('dragstart', onTemplateDragStarted);
+                element.addEventListener('dragstart', onTemplateDragStarted);
             });
 
             document.querySelectorAll('.cf-editor').forEach(element => {
-                element.removeEventListener('dragover', onElementDraggedOver);
-                element.addEventListener('dragover', onElementDraggedOver);
+                element.removeEventListener('dragover', onTemplateDraggedOver);
+                element.addEventListener('dragover', onTemplateDraggedOver);
 
-                element.removeEventListener('drop', onElementDropped);
-                element.addEventListener('drop', onElementDropped);
+                element.removeEventListener('drop', onTemplateDropped);
+                element.addEventListener('drop', onTemplateDropped);
             });
         }
 

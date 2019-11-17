@@ -77,7 +77,7 @@ export class CheckboxGroup extends Control {
     }
 
     render() {
-        let options = this.options.map(option => `<input type='checkbox' name='${this.name}' value='${option.key}'>${option.value}`).join('');
+        let options = this.options.map(option => `<input type='checkbox' name='${this.name}' value='${option.key}' data-text='${option.value}'>${option.value}`).join('');
         return `<div id='${this.id}' class='cf-control' data-cf-template-name='${this.templateName}'>
                     <label contenteditable=true>${this.title}</label>
                     <span>${options}</span>
@@ -92,7 +92,7 @@ export class RadioGroup extends Control {
     }
 
     render() {
-        let options = this.options.map(option => `<input type='radio' name='${this.name}' value='${option.key}'>${option.value}`).join('');
+        let options = this.options.map(option => `<input type='radio' name='${this.name}' value='${option.key}' data-text='${option.value}'>${option.value}`).join('');
         return `<div id='${this.id}' class='cf-control' data-cf-template-name='${this.templateName}'>
                     <label contenteditable=true>${this.title}</label>
                     <span>${options}</span>
