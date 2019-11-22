@@ -1,326 +1,142 @@
 import '../css/index.css'
+import '../css/bootstrap.min.css'
 
-import {
-    CustomForm
-} from './form.js'
+import * as Utils from './utils.js';
+import * as Elements from './elements.js';
+import * as Events from './events.js'
+import Condition from './conditions.js';
+import templates from './components.js';
 
-import {
-    Header,
-    DropdownList,
-    TextArea,
-    Label,
-    Input,
-    CheckboxGroup,
-    RadioGroup
-} from './elements.js';
-
-import {
-    Condition
-} from './conditions.js';
-
-
-import {
-    uniqueId,
-    getControl,
-    getAllControls,
-    evaluateConditions,
-    createElement,
-} from './utils.js';
-
-window.FormBuilder = class FormBuilder {
-    load(mainContainer) {
-        let topRow = document.createElement('div');
-        let bottomRow = document.createElement('div');
-        let templatesContainer = document.createElement('div');
-        let editor = document.createElement('div');
-
-        topRow.appendChild(templatesContainer);
-        topRow.appendChild(editor);
-        mainContainer.appendChild(topRow);
-        mainContainer.appendChild(bottomRow);
-
-        mainContainer.classList.add('cf-builder-container', 'cf-box');
-        templatesContainer.classList.add('cf-templates-container', 'cf-box');
-        editor.classList.add('cf-editor', 'cf-box');
-        topRow.classList.add('cf-top-row');
-        bottomRow.classList.add('cf-bottom-row');
-
-        //**********************************************************************
-        let elementTemplates = [{
-                name: 'header',
-                title: 'Header',
-                copyTo(section) {
-                    let control = new Header('Header', uniqueId());
-                    control.templateName = this.name;
-                    section.addControl(control);
-                }
-            },
-            {
-                name: 'label',
-                title: 'Label',
-                copyTo(section) {
-                    let control = new Label(this.title, uniqueId());
-                    control.templateName = this.name;
-                    section.addControl(control);
-                }
-            },
-            {
-                name: 'input',
-                title: 'Input',
-                copyTo(section) {
-                    let control = new Input(this.title, 'text', uniqueId());
-                    control.templateName = this.name;
-                    section.addControl(control);
-                }
-            },
-            {
-                name: 'email',
-                title: 'Email',
-                copyTo(section) {
-                    let control = new Input(this.title, 'email', uniqueId());
-                    control.templateName = this.name;
-                    section.addControl(control);
-                }
-            },
-            {
-                name: 'date',
-                title: 'Date',
-                copyTo(section) {
-                    let control = new Input(this.title, 'date', uniqueId());
-                    control.templateName = this.name;
-                    section.addControl(control);
-                }
-            },
-            {
-                name: 'textarea',
-                title: 'Text Area',
-                copyTo(section) {
-                    let control = new TextArea(this.title, uniqueId());
-                    control.templateName = this.name;
-                    section.addControl(control);
-                }
-            },
-            {
-                name: 'checkboxgroup',
-                title: 'Checkbox Group',
-                copyTo(section) {
-                    let control = new CheckboxGroup(this.title, uniqueId());
-                    control.templateName = this.name;
-                    [...Array(4).keys()].forEach((item) => control.options.push({
-                        key: `checkbox-${item}`,
-                        value: `Checkbox ${item}`
-                    }));
-                    section.addControl(control);
-                }
-            },
-            {
-                name: 'radiogroup',
-                title: 'Radio Group',
-                copyTo(section) {
-                    let control = new RadioGroup(this.title, uniqueId());
-                    control.templateName = this.name;
-                    [...Array(4).keys()].forEach((item) => control.options.push({
-                        key: `radio-${item}`,
-                        value: `Radio ${item}`
-                    }));
-                    section.addControl(control);
-
-                }
-            },
-            {
-                name: 'dropdownlist',
-                title: 'Dropdown List',
-                copyTo(section) {
-                    let control = new DropdownList(this.title, uniqueId());
-                    control.templateName = this.name;
-                    [...Array(4).keys()].forEach((item) => control.options.push({
-                        key: item === 0 ? '' : `option-${item}`,
-                        value: item === 0 ? '' : `Option ${item}`
-                    }));
-                    section.addControl(control);
-                }
-            }
-        ];
-
-        elementTemplates.forEach(item => {
-            let templateElement = document.createElement('button');
-            templateElement.classList.add('cf-element-template');
-            templateElement.setAttribute('data-cf-template-name', item.name);
-            templateElement.innerHTML = item.title;
-            templatesContainer.appendChild(templateElement);
-        });
-        //**********************************************************************
-        function onLabelEdited(event) {
-            let control = getAllControls(form).find(control => control.id === event.target.parentElement.id);
-
-            if (control) {
-                control.title = event.target.innerText;
-                reload();
-                refreshConditions();
-            }
+(function(window) {
+    window.FormBuilder = class FormBuilder {
+        constructor() {
+            this.form = new Elements.CustomForm();
         }
 
-        function onInputChanged(event) {
-            let control = getControl(form, event.target.closest('.cf-control').id);
+        load(mainContainer) {
+            let topRow = Utils.createDiv();
+            let bottomRow = Utils.createDiv();
+            let templatesContainer = Utils.createDiv();
+            let editor = Utils.createDiv();
 
-            if (control) {
-                let selectedValue = event.target.value;
+            topRow.appendChild(templatesContainer);
+            topRow.appendChild(editor);
+            mainContainer.appendChild(topRow);
+            mainContainer.appendChild(bottomRow);
 
-                if (['dropdownlist'].includes(control.templateName)) {
-                    let element = event.target;
-                    selectedValue = element[element.selectedIndex].text;
-                } else if (['radiogroup', 'checkboxgroup'].includes(control.templateName)) {
-                    selectedValue = event.target.getAttribute('data-text');
-                }
+            mainContainer.classList.add(`cf-${this.form.id}`, 'cf-builder-container', 'cf-border');
+            templatesContainer.classList.add('cf-templates-container', 'cf-border');
+            editor.classList.add('cf-editor', 'cf-border');
+            topRow.classList.add('cf-top-row');
+            bottomRow.classList.add('cf-bottom-row');
 
-                evaluateConditions(control, selectedValue);
-            }
+            this.init();
         }
 
-        function onAddNewCondition(event) {
-            let controlElement = event.target.querySelector('.cf-control');
-
-            if (controlElement) {
-                let control = getControl(form, controlElement.id);
-                control.conditions.push(new Condition());
-                refreshConditions();
-            }
+        init() {
+            this.loadTemplates();
+            this.configureDragDrop();
+            this.reload();
         }
 
-        function refreshConditions() {
-            bottomRow.innerHTML = '';
+        loadTemplates() {
+            templates.forEach(template => {
+                let templateElement = Utils.createButton(template.title);
+                templateElement.classList.add('cf-element-template');
+                templateElement.setAttribute('data-cf-template-name', template.name);
+                Utils.querySelector(this.form, '.cf-templates-container').appendChild(templateElement);
+            });
+        }
 
-            getAllControls(form).forEach(control => {
-                control.conditions.forEach(condition => {
-                    let conditionRow = createElement('div', null, '');
-                    conditionRow.classList.add('cf-condition-row', 'cf-box');
-                    bottomRow.appendChild(conditionRow);
+        configureDragDrop() {
+            Events.registerDragStartEvent.apply(this);
+            Events.registerDragOverEvent.apply(this);
+            Events.registerDropEvent.apply(this);
+        }
 
-                    conditionRow.appendChild(createElement('div', null, 'If'));
-                    conditionRow.appendChild(createElement('div', null, `${control.title}`));
-                    conditionRow.appendChild(createElement('div', null, '='));
+        reload() {
+            this.form.render(html => {
+                Utils.querySelector(this.form, '.cf-editor').innerHTML = html;
+                this.applyExternalStyles();
+                this.refreshEventsAndConditions();
+            });
+        }
 
-                    let ifValue = createElement('input', 'text', condition.ifRule.value);
-                    conditionRow.appendChild(ifValue);
-                    conditionRow.appendChild(createElement('div', null, 'Then'));
+        applyExternalStyles() {
+            Utils.querySelectorAll(this.form, '.cf-templates-container>button').forEach(element => element.classList.add('btn', 'btn-primary'));
+            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(1)').forEach(element => element.classList.add('btn', 'btn-success'));
+            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(2)').forEach(element => element.classList.add('btn', 'btn-danger'));
+        }
 
-                    let visibilitySelect = document.createElement('select');
-                    visibilitySelect.options.add(new Option('', ''));
-                    visibilitySelect.options.add(new Option('Show', 'show'));
-                    visibilitySelect.options.add(new Option('Hide', 'hide'));
-                    visibilitySelect.value = condition.thenRule.isHidden ? 'hide' : 'show';
-                    conditionRow.appendChild(visibilitySelect);
+        regenerateConditions() {
+            Utils.querySelector(this.form, '.cf-bottom-row').innerHTML = '';
 
-                    let hideControlList = document.createElement('select');
+            Utils.getAllComponents(this.form).forEach(component => {
+                component.conditions.forEach(condition => {
+                    let conditionalRowElement = Utils.createDiv();
+                    conditionalRowElement.classList.add('cf-condition-row', 'cf-border');
+                    Utils.querySelector(this.form, '.cf-bottom-row').appendChild(conditionalRowElement);
 
-                    getAllControls(form).filter(c => c.id !== control.id).forEach(element => {
-                        let control = getControl(form, element.id);
-                        hideControlList.options.add(new Option(control.title, control.id));
+                    conditionalRowElement.appendChild(Utils.createDiv('If'));
+                    conditionalRowElement.appendChild(Utils.createDiv(`${component.title}`));
+                    conditionalRowElement.appendChild(Utils.createDiv('='));
 
-                        document.getElementById(control.id).addEventListener('blur', event => {
-                            Array.from(hideControlList.options).find(o => o.value === event.target.id).text = event.target.innerHTML;
+                    let ifValueElement = Utils.createInput(condition.ifRule.value);
+                    conditionalRowElement.appendChild(ifValueElement);
+                    conditionalRowElement.appendChild(Utils.createDiv('Then'));
+
+                    let visibilitySelectElement = Utils.createSelect();
+                    visibilitySelectElement.options.add(new Option('', ''));
+                    visibilitySelectElement.options.add(new Option('Show', 'show'));
+                    visibilitySelectElement.options.add(new Option('Hide', 'hide'));
+                    visibilitySelectElement.value = condition.thenRule.isHidden ? 'hide' : 'show';
+                    conditionalRowElement.appendChild(visibilitySelectElement);
+
+                    let hideComponentListElement = Utils.createSelect();
+
+                    Utils.getAllComponents(this.form).filter(c => c.id !== component.id).forEach(element => {
+                        let component = Utils.getComponent(this.form, element.id);
+                        hideComponentListElement.options.add(new Option(component.title, component.id));
+
+                        document.getElementById(component.id).addEventListener('blur', event => {
+                            Array.from(hideComponentListElement.options).find(o => o.value === event.target.id).text = event.target.innerHTML;
                         });
                     });
 
-                    hideControlList.value = condition.thenRule.controlId;
-                    conditionRow.appendChild(hideControlList);
+                    hideComponentListElement.value = condition.thenRule.componentId;
+                    conditionalRowElement.appendChild(hideComponentListElement);
 
-                    let saveCondition = createElement('input', 'button', 'Save');
-                    saveCondition.setAttribute('disabled', 'true');
-                    conditionRow.appendChild(saveCondition);
+                    let saveConditionElement = Utils.createButton('Save');
+                    saveConditionElement.setAttribute('disabled', 'true');
+                    conditionalRowElement.appendChild(saveConditionElement);
 
-                    saveCondition.addEventListener('click', event => {
-                        condition.ifRule.value = ifValue.value;
-                        condition.thenRule.controlId = hideControlList.value;
-                        condition.thenRule.isHidden = visibilitySelect.value === 'hide';
-                        saveCondition.setAttribute('disabled', 'true');
+                    saveConditionElement.addEventListener('click', event => {
+                        condition.ifRule.value = ifValueElement.value;
+                        condition.thenRule.componentId = hideComponentListElement.value;
+                        condition.thenRule.isHidden = visibilitySelectElement.value === 'hide';
+                        event.target.setAttribute('disabled', 'true');
                     });
 
-                    let deleteCondition = createElement('input', 'button', 'Delete');
-                    conditionRow.appendChild(deleteCondition);
-                    deleteCondition.addEventListener('click', event => {
-                        control.conditions = control.conditions.filter(c => c.id !== condition.id);
-                        refreshConditions();
+                    let deleteConditionElement = Utils.createButton('Delete');
+
+                    conditionalRowElement.appendChild(deleteConditionElement);
+                    deleteConditionElement.addEventListener('click', event => {
+                        component.conditions = component.conditions.filter(c => c.id !== condition.id);
+                        this.regenerateConditions();
                     });
 
-                    [visibilitySelect, hideControlList, ifValue].forEach(element => element.addEventListener('change', event => saveCondition.removeAttribute('disabled')));
+                    [visibilitySelectElement, hideComponentListElement, ifValueElement].forEach(element => element.addEventListener('change', event => saveConditionElement.removeAttribute('disabled')));
                 });
             });
+
+            this.applyExternalStyles();
         }
 
-        function onTemplateDragStarted(event) {
-            event.dataTransfer.setData("templateName", event.target.getAttribute('data-cf-template-name'));
+        refreshEventsAndConditions() {
+            this.regenerateConditions();
+            Events.registerLabelEditEvent.apply(this);
+            Events.registerInputChangeEvent.apply(this);
+            Events.registerAddNewConditionEvent.apply(this);
         }
-
-        function onTemplateDraggedOver(event) {
-            event.preventDefault();
-        }
-
-        function onTemplateDropped(event) {
-            let templateTag = event.dataTransfer.getData("templateName");
-            let template = elementTemplates.find(d => d.name === templateTag);
-
-            if (template) {
-                let section = form.addSection();
-                template.copyTo(section);
-
-                form.render(html => {
-                    editor.innerHTML = html;
-                    reload();
-                    refreshConditions();
-                });
-            }
-        }
-
-        function setDragDrop() {
-            document.querySelectorAll('.cf-element-template').forEach(element => {
-                element.setAttribute('draggable', "true");
-
-                element.removeEventListener('dragstart', onTemplateDragStarted);
-                element.addEventListener('dragstart', onTemplateDragStarted);
-            });
-
-            document.querySelectorAll('.cf-editor').forEach(element => {
-                element.removeEventListener('dragover', onTemplateDraggedOver);
-                element.addEventListener('dragover', onTemplateDraggedOver);
-
-                element.removeEventListener('drop', onTemplateDropped);
-                element.addEventListener('drop', onTemplateDropped);
-            });
-        }
-
-        function reload() {
-            addExternalStyles();
-
-            document.querySelectorAll('.cf-control>span').forEach(element => {
-                element.removeEventListener('change', onInputChanged);
-                element.addEventListener('change', onInputChanged);
-                element.removeEventListener('input', onInputChanged);
-                element.addEventListener('input', onInputChanged);
-            });
-
-            document.querySelectorAll('.cf-section').forEach(element => {
-                element.removeEventListener('dblclick', onAddNewCondition);
-                element.addEventListener('dblclick', onAddNewCondition);
-            });
-
-            document.querySelectorAll('[contenteditable=true]').forEach(element => {
-                element.removeEventListener('input', onLabelEdited);
-                element.addEventListener('input', onLabelEdited);
-            });
-
-            refreshConditions();
-        }
-
-        function addExternalStyles() {
-            document.querySelectorAll('.cf-control').forEach(element => element.classList.add('form-group'));
-            document.querySelectorAll('.cf-element-template').forEach(element => element.classList.add('btn', 'btn-primary'));
-        }
-
-        //**********************************************************************
-        let form = new CustomForm();
-        setDragDrop();
-        reload();
-        //**********************************************************************
     }
-}
+})(window);

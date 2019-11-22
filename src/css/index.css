@@ -40,11 +40,11 @@
     align-items: center;
 }
 
-.cf-box {
+.cf-border {
     border: 1px dashed black;
 }
 
-.cf {
+.cf-form {
     display: grid;
     grid-gap: 5px;
 }
@@ -53,27 +53,29 @@
     display: flex;
 }
 
-.cf-control {
+.cf-component {
     padding: 5px;
     display: grid;
-    grid-gap: 10px;
+    grid-gap: 4px;
     grid-auto-columns: auto;
     grid-template-rows: auto 1fr;
     align-items: center;
 }
 
-.cf-control>h1 {
+.cf-component>h1 {
     margin: 0;
 }
 
-.cf-control>label {
+.cf-component>label {
     min-width: 100px;
 }
 
-.cf-section:hover {
-    background-color: silver;
+.cf-component>span>input[type=radio]+span,
+.cf-component>span>input[type=checkbox]+span {
+    margin-right: 15px;
+    margin-left: 5px;
 }
 
-.cf-control-hidden {
+.cf-component-hidden {
     display: none;
 }
