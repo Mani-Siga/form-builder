@@ -1,11 +1,19 @@
 # Simple Form Builder
-Minimalistic form builder library using vanilla javascript
+Minimalistic form builder library using vanilla javascript.
 
 ![Example](Screenshot.png)
 
-## Run demo
+# Features
+
+Basic drag drop.
+
+Conditional logic - Double click on the form element to add condition(s).
+
+# Build
+
+### Run demo
 npm run dev
 
 
-## Build for production
+### Build for production
 npm run build
