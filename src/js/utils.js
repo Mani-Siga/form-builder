@@ -35,6 +35,10 @@ export function querySelectorAll(form, selector) {
     return document.querySelector(`.cf-${form.id}`).querySelectorAll(selector);
 }
 
+export function getSection(form, id) {
+    return form.sections.find(section => section.id === id);
+}
+
 export function getComponent(form, id) {
     return getAllComponents(form).find(component => component.id === id);
 }

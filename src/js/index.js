@@ -49,23 +49,31 @@ import templates from './components.js';
         }
 
         configureDragDrop() {
-            Events.registerDragStartEvent.apply(this);
-            Events.registerDragOverEvent.apply(this);
-            Events.registerDropEvent.apply(this);
+            Events.registerTemplateDragStartEvent.apply(this);
+            Events.registerTemplateDragOverEvent.apply(this);
+            Events.registerTemplateDropEvent.apply(this);
         }
 
         reload() {
             this.form.render(html => {
                 Utils.querySelector(this.form, '.cf-editor').innerHTML = html;
+                Utils.querySelectorAll(this.form, '.cf-component').forEach(element => {
+                    element.setAttribute('draggable', 'true');
+                });
+
+                Events.registerComponentDragStartEvent.apply(this);
+                Events.registerComponentDragOverEvent.apply(this);
+                Events.registerComponentDropEvent.apply(this);
                 this.applyExternalStyles();
                 this.refreshEventsAndConditions();
             });
         }
 
         applyExternalStyles() {
-            Utils.querySelectorAll(this.form, '.cf-templates-container>button').forEach(element => element.classList.add('btn', 'btn-primary'));
-            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(1)').forEach(element => element.classList.add('btn', 'btn-success'));
-            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(2)').forEach(element => element.classList.add('btn', 'btn-danger'));
+            Utils.querySelectorAll(this.form, 'button').forEach(element => element.classList.add('btn', 'btn-sm'));
+            Utils.querySelectorAll(this.form, '.cf-templates-container>button').forEach(element => element.classList.add('btn-primary'));
+            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(1)').forEach(element => element.classList.add('btn-success'));
+            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(2)').forEach(element => element.classList.add('btn-danger'));
         }
 
         regenerateConditions() {
