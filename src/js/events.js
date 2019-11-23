@@ -17,8 +17,9 @@ export function registerComponentDragStartEvent() {
 }
 
 export function registerTemplateDragOverEvent() {
-    Utils.querySelectorAll(this.form, '.cf-editor').forEach(element => element.addEventListener('dragover', onTemplateDragOverEvent.bind(this)));
+    Utils.querySelector(this.form, '.cf-editor').addEventListener('dragover', onTemplateDragOverEvent.bind(this));
 }
+
 
 export function registerComponentDragOverEvent() {
     Utils.querySelector(this.form, '.cf-templates-container').addEventListener('dragover', onComponentDragOverEvent.bind(this));
@@ -38,7 +39,6 @@ export function registerComponentDeletedEvent() {
 }
 
 export function registerLabelEditEvent() {
-
     Utils.querySelectorAll(this.form, '[contenteditable=true]').forEach(element => element.addEventListener('input', onLabelEditedEvent.bind(this)))
 }
 
