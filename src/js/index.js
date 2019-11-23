@@ -52,6 +52,7 @@ import templates from './components.js';
             Events.registerTemplateDragStartEvent.apply(this);
             Events.registerTemplateDragOverEvent.apply(this);
             Events.registerTemplateDropEvent.apply(this);
+            Events.registerComponentDeletedEvent.apply(this);
         }
 
         reload() {
