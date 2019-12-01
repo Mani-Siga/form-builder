@@ -29,6 +29,7 @@ export const ConditionTemplate = `
     <div class="cf-config-controls">
         <div>
             <input type="submit" class="cf-config-save btn" data-component-id="{{vm.component.id}}" value="Save">
+            <input type="submit" class="cf-config-close btn" data-component-id="{{vm.component.id}}" value="Close">
             {{#vm.component.options.length}}
             <button class="cf-config-add-option btn" data-component-id="{{vm.component.id}}">Add Option</button>
             {{/vm.component.options.length}}

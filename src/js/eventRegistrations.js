@@ -6,6 +6,11 @@ export function registerEditConfigurationEvent() {
             .id)));
 }
 
+export function registerCloseConfigurationEvent() {
+    Utils.querySelectorAll(this.form, '.cf-config-close')
+        .forEach(element => element.addEventListener('click', event => this.editForm()));
+}
+
 export function registerSaveConfigurationEvent() {
     Utils.querySelectorAll(this.form, '.cf-config-save')
         .forEach(element => element.addEventListener('click', event => this.saveConfiguration(event)));

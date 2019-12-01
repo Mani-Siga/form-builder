@@ -182,6 +182,7 @@ import Sortable from 'sortablejs';
                     targetIdElement.value = component.conditions[index].thenRule.componentId;
                 });
 
+            EventRegistrations.registerCloseConfigurationEvent.apply(this);
             EventRegistrations.registerSaveConfigurationEvent.apply(this);
             EventRegistrations.registerAddNewOptionEvent.apply(this);
             EventRegistrations.registerAddNewConditionEvent.apply(this);
@@ -248,8 +249,6 @@ import Sortable from 'sortablejs';
                         .value;
                     component.addCondition(condition);
                 });
-
-            this.editForm();
         }
 
         evaluateConditions(event) {
