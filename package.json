@@ -8,7 +8,7 @@
         "postinstall": "npm run build-demo",
         "prebuild": "rmdir dist /s /q",
         "dev": "parcel ./src/index.html --open",
-        "build-demo": "parcel build ./src/index.html",
+        "build-demo": "parcel build ./src/index.html --out-dir public",
         "build": "parcel build ./src/js/index.js --no-source-maps"
     },
     "keywords": [],
