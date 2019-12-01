@@ -5,7 +5,7 @@ export default [{
         name: 'header',
         title: 'Header',
         copyTo(section) {
-            let component = new Elements.Header(this.title, false, this.name, Templates.headerTemplate);
+            let component = new Elements.Header(this.title, true, this.name, Templates.headerTemplate);
             section.addComponent(component)
         }
     },
@@ -29,7 +29,7 @@ export default [{
         name: 'email',
         title: 'Email',
         copyTo(section) {
-            let component = new Elements.Input(this.title, 'email', false, this.name, Templates.inputTemplate);
+            let component = new Elements.Input(this.title, 'email', true, this.name, Templates.inputTemplate);
             section.addComponent(component);
         }
     },
@@ -53,7 +53,7 @@ export default [{
         name: 'checkboxgroup',
         title: 'Checkbox Group',
         copyTo(section) {
-            let component = new Elements.CheckboxGroup(this.title, this.name, Templates.checkboxgroupTemplate);
+            let component = new Elements.CheckboxGroup(this.title, true, this.name, Templates.checkboxgroupTemplate);
             [...Array(4)
                 .keys()
             ].forEach((item) => component.options.push({

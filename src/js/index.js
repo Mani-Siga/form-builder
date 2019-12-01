@@ -28,7 +28,6 @@ import Sortable from 'sortablejs';
 
             this.buildForm();
             this.setupDragDrop();
-            EventRegistrations.registerFormInputChangedEvent.apply(this);
         }
 
         buildForm() {
@@ -41,6 +40,7 @@ import Sortable from 'sortablejs';
 
             this.refreshDragDrop();
             EventRegistrations.registerEditConfigurationEvent.apply(this);
+            EventRegistrations.registerFormInputChangedEvent.apply(this);
         }
 
         reorder() {

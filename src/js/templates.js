@@ -41,16 +41,16 @@ export const ConditionTemplate = `
     <table class="table table table-hover">
         <tbody> 
             <tr>
-                <td>Name</td>
+                <td><strong>Name</strong></td>
                 <td><input value="{{vm.component.title}}" class="cf-title"></td>
             </tr>
             <tr>
-                <td>Required</td>
+                <td><strong>Required</strong></td>
                 <td><input type="checkbox" class="cf-required" value="{{vm.component.required}}" {{#vm.component.required}}checked{{/vm.component.required}}></td>
             </tr>
             {{#vm.component.options.length}}
             <tr>
-                <td colspan="2">Options</td>
+                <td colspan="2"><strong>Options</strong></td>
             </tr>
             {{#vm.component.options}}
             <tr class="cf-option">
@@ -62,11 +62,11 @@ export const ConditionTemplate = `
             {{#vm.otherComponents.length}}
             {{#vm.component.conditions.length}}
             <tr>
-                <td colspan="8">Conditions</td>
+                <td colspan="8"><strong>Conditions</strong></td>
             </tr>
             {{#vm.component.conditions}}
             <tr class="cf-condition">
-                <td>If value of <strong>{{vm.component.title}}</strong> is</td>
+                <td>If the value is</td>
                 <td>
                     <input type="text" class="cf-if-value" value="{{ifRule.value}}" class="cf-condition-if-value">
                 </td>
@@ -97,29 +97,29 @@ export const ConditionTemplate = `
 `;
 
 export const HeaderTemplate = `
-    <h1>{{vm.title}}</h1>
+    <h1 {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</h1>
 `;
 
 export const LabelTemplate = `
-    <label>{{vm.title}}</label>
+    <label {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</label>
 `;
 
 export const InputTemplate = `
-    <label>{{vm.title}}</label>
+    <label {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</label>
     <span>
         <input type='{{vm.type}}' name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}>
     </span>
 `;
 
 export const TextareaTemplate = `
-    <label>{{vm.title}}</label>
+    <label {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</label>
     <span>
         <textarea name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}></textarea>
     </span>
 `;
 
 export const CheckboxGroupTemplate = `
-    <label>{{vm.title}}</label>
+    <label {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</label>
     <span>
         {{#vm.options}}
         <input name='{{vm.name}}' type='checkbox' value='{{key}}' data-value="{{value}}" {{#required}} required="required" {{/required}}>
@@ -129,7 +129,7 @@ export const CheckboxGroupTemplate = `
 `;
 
 export const RadioGroupTemplate = `
-    <label>{{vm.title}}</label>
+    <label {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</label>
     <span>
         {{#vm.options}}
         <input type='radio' name='{{vm.name}}' value='{{key}}' data-value="{{value}}" {{#vm.required}} required="required" {{/vm.required}}>
@@ -139,7 +139,7 @@ export const RadioGroupTemplate = `
 `;
 
 export const DropdownListTemplate = `
-    <label>{{vm.title}}</label>
+    <label {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</label>
     <span>
     <select name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}>
         <option></option>

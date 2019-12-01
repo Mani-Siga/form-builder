@@ -50,14 +50,12 @@ export function evaluateConditions(form) {
         .forEach(component => {
             component.conditions.forEach(condition => {
                 let element = document.getElementById(condition.thenRule.componentId);
-
-                if (element) {
-                    element.classList.remove('cf-hidden');
-                }
-
-                if (condition.evaluate(component.currentValues) && condition.thenRule.isHidden) {
-                    document.getElementById(condition.thenRule.componentId)
-                        .classList.add('cf-hidden');
+                if (component.currentValues.includes(condition.ifRule.value)) {
+                    if (condition.thenRule.isHidden) {
+                        element.classList.add('cf-hidden');
+                    } else {
+                        element.classList.remove('cf-hidden');
+                    }
                 }
             });
         });

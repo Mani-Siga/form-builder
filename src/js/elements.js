@@ -29,6 +29,8 @@ class Component {
     }
 
     render() {
+        this.currentValues = [];
+
         return Utils.render(this.template, {
             vm: this
         });
@@ -61,8 +63,8 @@ export class DropdownList extends Component {
 }
 
 export class CheckboxGroup extends Component {
-    constructor(title, templateName) {
-        super(title, false, [], templateName, ElementTemplates.CheckboxGroupTemplate);
+    constructor(title, required, templateName) {
+        super(title, required, [], templateName, ElementTemplates.CheckboxGroupTemplate);
     }
 }
 
