@@ -1,11 +1,11 @@
-import * as Utils from './utils.js';
 import * as Elements from './elements.js';
+import * as Templates from './templates.js'
 
 export default [{
         name: 'header',
         title: 'Header',
         copyTo(section) {
-            let component = new Elements.Header(this.title, Utils.uniqueId(), this.name);
+            let component = new Elements.Header(this.title, false, this.name, Templates.headerTemplate);
             section.addComponent(component)
         }
     },
@@ -13,7 +13,7 @@ export default [{
         name: 'label',
         title: 'Label',
         copyTo(section) {
-            let component = new Elements.Label(this.title, Utils.uniqueId(), this.name);
+            let component = new Elements.Label(this.title, true, this.name, Templates.labelTemplate);
             section.addComponent(component);
         }
     },
@@ -21,7 +21,7 @@ export default [{
         name: 'input',
         title: 'Input',
         copyTo(section) {
-            let component = new Elements.Input(this.title, Utils.uniqueId(), this.name, 'text');
+            let component = new Elements.Input(this.title, 'text', true, this.name, Templates.inputTemplate);
             section.addComponent(component);
         }
     },
@@ -29,7 +29,7 @@ export default [{
         name: 'email',
         title: 'Email',
         copyTo(section) {
-            let component = new Elements.Input(this.title, Utils.uniqueId(), this.name, 'email');
+            let component = new Elements.Input(this.title, 'email', false, this.name, Templates.inputTemplate);
             section.addComponent(component);
         }
     },
@@ -37,7 +37,7 @@ export default [{
         name: 'date',
         title: 'Date',
         copyTo(section) {
-            let component = new Elements.Input(this.title, Utils.uniqueId(), this.name, 'date');
+            let component = new Elements.Input(this.title, 'date', true, this.name, Templates.inputTemplate);
             section.addComponent(component);
         }
     },
@@ -45,7 +45,7 @@ export default [{
         name: 'textarea',
         title: 'Text Area',
         copyTo(section) {
-            let component = new Elements.TextArea(this.title, Utils.uniqueId(), this.name);
+            let component = new Elements.TextArea(this.title, true, this.name, Templates.textareaTemplate);
             section.addComponent(component);
         }
     },
@@ -53,10 +53,13 @@ export default [{
         name: 'checkboxgroup',
         title: 'Checkbox Group',
         copyTo(section) {
-            let component = new Elements.CheckboxGroup(this.title, Utils.uniqueId(), this.name);
-            [...Array(4).keys()].forEach((item) => component.options.push({
+            let component = new Elements.CheckboxGroup(this.title, this.name, Templates.checkboxgroupTemplate);
+            [...Array(4)
+                .keys()
+            ].forEach((item) => component.options.push({
                 key: `checkbox-${item}`,
-                value: `Checkbox ${item}`
+                value: `Checkbox ${item}`,
+                required: false
             }));
             section.addComponent(component);
         }
@@ -65,8 +68,10 @@ export default [{
         name: 'radiogroup',
         title: 'Radio Group',
         copyTo(section) {
-            let component = new Elements.RadioGroup(this.title, Utils.uniqueId(), this.name);
-            [...Array(4).keys()].forEach((item) => component.options.push({
+            let component = new Elements.RadioGroup(this.title, true, this.name, Templates.radiogroupTemplate);
+            [...Array(4)
+                .keys()
+            ].forEach((item) => component.options.push({
                 key: `radio-${item}`,
                 value: `Radio ${item}`
             }));
@@ -77,10 +82,12 @@ export default [{
         name: 'dropdownlist',
         title: 'Dropdown List',
         copyTo(section) {
-            let component = new Elements.DropdownList(this.title, Utils.uniqueId(), this.name);
-            [...Array(4).keys()].forEach((item) => component.options.push({
-                key: item === 0 ? '' : `option-${item}`,
-                value: item === 0 ? '' : `Option ${item}`
+            let component = new Elements.DropdownList(this.title, true, this.name, Templates.dropdownlistTemplate);
+            [...Array(4)
+                .keys()
+            ].forEach((item) => component.options.push({
+                key: `option-${item}`,
+                value: `Option ${item}`
             }));
             section.addComponent(component);
         }

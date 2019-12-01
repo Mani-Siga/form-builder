@@ -1,19 +1,17 @@
-.cf-builder-container {
+.cf-border {
+    border: 1px dotted black;
+}
+
+.cf-drag {
+    color: #fff;
+    background-color: #5755d9;
+}
+
+.cf-form-builder {
     padding: 5px;
     display: grid;
     grid-gap: 5px;
-    grid-template-rows: 1fr auto;
-}
-
-.cf-top-row {
-    display: grid;
-    grid-gap: 5px;
     grid-template-columns: auto 1fr;
-}
-
-.cf-bottom-row {
-    display: flex;
-    flex-direction: column;
 }
 
 .cf-templates-container {
@@ -22,10 +20,26 @@
 }
 
 .cf-editor {
+    display: grid;
+    grid-template-rows: 1fr auto;
+}
+
+.cf-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.cf-config {
     padding: 5px;
 }
 
+.cf-config-controls {
+    display: grid;
+    grid-gap: 10px;
+}
+
 .cf-element-template {
+
     margin: 5px;
     text-align: center;
 }
@@ -35,47 +49,38 @@
     margin-top: 1px;
     display: grid;
     grid-gap: 10px;
-    grid-template-columns: repeat(9, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     grid-auto-rows: auto;
     align-items: center;
 }
 
-.cf-border {
-    border: 1px dashed black;
-}
-
-.cf-form {
-    display: grid;
-    grid-gap: 5px;
-}
-
 .cf-section {
     display: flex;
-    padding: 5px;
+    margin-top: 2px;
 }
 
 .cf-component {
     padding: 5px;
     display: grid;
     grid-gap: 4px;
-    flex:1;
-    margin: 2px;
+    flex: 1;
+    margin: 5px;
     grid-auto-columns: auto;
     grid-template-rows: auto 1fr;
     align-items: center;
-}
-
-.cf-component:hover {
-    color: white;
-    background-color: #28a745;
 }
 
 .cf-component>h1 {
     margin: 0;
 }
 
-.cf-component>label {
-    min-width: 100px;
+.cf-component textarea {
+    resize: none;
+}
+
+.cf-component-title {
+    border: none;
+    border-color: transparent;
 }
 
 .cf-component>span>input[type=radio]+span,
@@ -84,6 +89,6 @@
     margin-left: 5px;
 }
 
-.cf-component-hidden {
+.cf-hidden {
     display: none;
 }

@@ -8,7 +8,7 @@ class If {
 }
 
 class Then {
-    constructor(component = {}, isHidden) {
+    constructor(component = {}, isHidden = false) {
         this.componentId = component.id;
         this.isHidden = isHidden;
     }

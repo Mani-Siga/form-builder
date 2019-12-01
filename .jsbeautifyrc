@@ -1,3 +1,8 @@
 {
-    "wrap_attributes": "force-aligned"
+    "html": {
+        "wrap_attributes": "force-aligned"
+    },
+    "js": {
+        "break_chained_methods": true
+    }
 }

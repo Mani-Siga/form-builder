@@ -1,151 +1,276 @@
+import 'spectre.css'
 import '../css/index.css'
-import '../css/bootstrap.min.css'
+
+import Form from './form.js';
+import Condition from './conditions';
+import ComponentTemplates from './components.js';
 
 import * as Utils from './utils.js';
-import * as Elements from './elements.js';
-import * as Events from './events.js'
-import Condition from './conditions.js';
-import templates from './components.js';
+import * as Templates from './templates.js'
+import * as EventRegistrations from './eventRegistrations.js'
+
+import Sortable from 'sortablejs';
 
 (function(window) {
     window.FormBuilder = class FormBuilder {
         constructor() {
-            this.form = new Elements.CustomForm();
+            this.form = new Form();
         }
 
-        load(mainContainer) {
-            let topRow = Utils.createDiv();
-            let bottomRow = Utils.createDiv();
-            let templatesContainer = Utils.createDiv();
-            let editor = Utils.createDiv();
-
-            topRow.appendChild(templatesContainer);
-            topRow.appendChild(editor);
-            mainContainer.appendChild(topRow);
-            mainContainer.appendChild(bottomRow);
-
-            mainContainer.classList.add(`cf-${this.form.id}`, 'cf-builder-container', 'cf-border');
-            templatesContainer.classList.add('cf-templates-container', 'cf-border');
-            editor.classList.add('cf-editor', 'cf-border');
-            topRow.classList.add('cf-top-row');
-            bottomRow.classList.add('cf-bottom-row');
-
-            this.init();
-        }
-
-        init() {
-            this.loadTemplates();
-            this.configureDragDrop();
-            this.reload();
-        }
-
-        loadTemplates() {
-            templates.forEach(template => {
-                let templateElement = Utils.createButton(template.title);
-                templateElement.classList.add('cf-element-template');
-                templateElement.setAttribute('data-cf-template-name', template.name);
-                Utils.querySelector(this.form, '.cf-templates-container').appendChild(templateElement);
-            });
-        }
-
-        configureDragDrop() {
-            Events.registerTemplateDragStartEvent.apply(this);
-            Events.registerTemplateDragOverEvent.apply(this);
-            Events.registerTemplateDropEvent.apply(this);
-            Events.registerComponentDeletedEvent.apply(this);
-        }
-
-        reload() {
-            this.form.render(html => {
-                Utils.querySelector(this.form, '.cf-editor').innerHTML = html;
-                Utils.querySelectorAll(this.form, '.cf-component').forEach(element => {
-                    element.setAttribute('draggable', 'true');
+        render(mainContainer) {
+            document.getElementById(mainContainer.id)
+                .innerHTML = Utils.render(Templates.MainTemplate, {
+                    vm: {
+                        form: this.form,
+                        componentTemplates: ComponentTemplates
+                    }
                 });
 
-                Events.registerComponentDragStartEvent.apply(this);
-                Events.registerComponentDragOverEvent.apply(this);
-                Events.registerComponentDropEvent.apply(this);
-                this.applyExternalStyles();
-                this.refreshEventsAndConditions();
+            this.buildForm();
+            this.setupDragDrop();
+            EventRegistrations.registerFormInputChangedEvent.apply(this);
+        }
+
+        buildForm() {
+            let self = this;
+            let formElement = Utils.querySelector(self.form, '.cf-form');
+
+            formElement.innerHTML = Utils.render(Templates.FormTemplate, {
+                vm: this.form
             });
+
+            this.refreshDragDrop();
+            EventRegistrations.registerEditConfigurationEvent.apply(this);
         }
 
-        applyExternalStyles() {
-            Utils.querySelectorAll(this.form, 'button').forEach(element => element.classList.add('btn', 'btn-sm'));
-            Utils.querySelectorAll(this.form, '.cf-templates-container>button').forEach(element => element.classList.add('btn-primary'));
-            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(1)').forEach(element => element.classList.add('btn-success'));
-            Utils.querySelectorAll(this.form, '.cf-condition-row>button:nth-of-type(2)').forEach(element => element.classList.add('btn-danger'));
-        }
+        reorder() {
+            let form = new Form();
 
-        regenerateConditions() {
-            Utils.querySelector(this.form, '.cf-bottom-row').innerHTML = '';
+            document.getElementById(this.form.id)
+                .querySelectorAll('.cf-section')
+                .forEach(sectionElement => {
+                    let existingSection = Utils.getSection(this.form, sectionElement.id);
 
-            Utils.getAllComponents(this.form).forEach(component => {
-                component.conditions.forEach(condition => {
-                    let conditionalRowElement = Utils.createDiv();
-                    conditionalRowElement.classList.add('cf-condition-row', 'cf-border');
-                    Utils.querySelector(this.form, '.cf-bottom-row').appendChild(conditionalRowElement);
+                    if (existingSection) {
+                        let newSection = form.addSection();
 
-                    conditionalRowElement.appendChild(Utils.createDiv('If'));
-                    conditionalRowElement.appendChild(Utils.createDiv(`${component.title}`));
-                    conditionalRowElement.appendChild(Utils.createDiv('='));
+                        sectionElement.querySelectorAll('.cf-component')
+                            .forEach(componentElement => {
+                                let existingComponent = Utils.getComponent(this.form, componentElement.id);
 
-                    let ifValueElement = Utils.createInput(condition.ifRule.value);
-                    conditionalRowElement.appendChild(ifValueElement);
-                    conditionalRowElement.appendChild(Utils.createDiv('Then'));
-
-                    let visibilitySelectElement = Utils.createSelect();
-                    visibilitySelectElement.options.add(new Option('', ''));
-                    visibilitySelectElement.options.add(new Option('Show', 'show'));
-                    visibilitySelectElement.options.add(new Option('Hide', 'hide'));
-                    visibilitySelectElement.value = condition.thenRule.isHidden ? 'hide' : 'show';
-                    conditionalRowElement.appendChild(visibilitySelectElement);
-
-                    let hideComponentListElement = Utils.createSelect();
-
-                    Utils.getAllComponents(this.form).filter(c => c.id !== component.id).forEach(element => {
-                        let component = Utils.getComponent(this.form, element.id);
-                        hideComponentListElement.options.add(new Option(component.title, component.id));
-
-                        document.getElementById(component.id).addEventListener('blur', event => {
-                            Array.from(hideComponentListElement.options).find(o => o.value === event.target.id).text = event.target.innerHTML;
-                        });
-                    });
-
-                    hideComponentListElement.value = condition.thenRule.componentId;
-                    conditionalRowElement.appendChild(hideComponentListElement);
-
-                    let saveConditionElement = Utils.createButton('Save');
-                    saveConditionElement.setAttribute('disabled', 'true');
-                    conditionalRowElement.appendChild(saveConditionElement);
-
-                    saveConditionElement.addEventListener('click', event => {
-                        condition.ifRule.value = ifValueElement.value;
-                        condition.thenRule.componentId = hideComponentListElement.value;
-                        condition.thenRule.isHidden = visibilitySelectElement.value === 'hide';
-                        event.target.setAttribute('disabled', 'true');
-                    });
-
-                    let deleteConditionElement = Utils.createButton('Delete');
-
-                    conditionalRowElement.appendChild(deleteConditionElement);
-                    deleteConditionElement.addEventListener('click', event => {
-                        component.conditions = component.conditions.filter(c => c.id !== condition.id);
-                        this.regenerateConditions();
-                    });
-
-                    [visibilitySelectElement, hideComponentListElement, ifValueElement].forEach(element => element.addEventListener('change', event => saveConditionElement.removeAttribute('disabled')));
+                                if (existingComponent) {
+                                    newSection.components.push(existingComponent);
+                                }
+                            });
+                    }
                 });
-            });
 
-            this.applyExternalStyles();
+            this.form.sections = form.sections.filter(section => section.components.length > 0);
+            this.buildForm();
         }
 
-        refreshEventsAndConditions() {
-            this.regenerateConditions();
-            Events.registerLabelEditEvent.apply(this);
-            Events.registerInputChangeEvent.apply(this);
-            Events.registerAddNewConditionEvent.apply(this);
+        setupDragDrop() {
+            let self = this;
+
+            Sortable.create(Utils.querySelector(self.form, '.cf-templates-container'), {
+                group: {
+                    put: true,
+                    pull: 'clone',
+                },
+                dragClass: 'cf-drag',
+                sort: false,
+                swapThreshold: 0.1,
+                onAdd(event) {
+                    event.item.remove();
+                    self.reorder();
+                }
+            });
+
+            Sortable.create(Utils.querySelector(self.form, '.cf-form'), {
+                group: {
+                    put: true,
+                    pull: false
+                },
+                dragClass: 'cf-drag',
+                sort: true,
+                onAdd(event) {
+                    self.createComponent(event);
+                },
+                onSort(event) {
+                    self.reorder();
+                }
+            });
+        }
+
+        refreshDragDrop() {
+            let self = this;
+
+            Utils.querySelectorAll(self.form, '.cf-section')
+                .forEach(section => {
+                    Sortable.create(section, {
+                        group: {
+                            put: true,
+                            pull: true
+                        },
+                        sort: true,
+                        dragClass: 'cf-drag',
+                        onAdd(event) {
+                            self.createComponent(event);
+                        },
+                        onSort(event) {
+                            self.reorder();
+                        }
+                    });
+                });
+        }
+
+        createComponent(event) {
+            if (event.from.classList.contains('cf-templates-container')) {
+                let templateName = event.item.getAttribute('data-cf-template-name');
+                let template = ComponentTemplates.find(t => t.name === templateName);
+
+                let section = null;
+                let sectionElement = event.target.closest('.cf-section');
+
+                if (!sectionElement) {
+                    section = this.form.addSection();
+                } else {
+                    section = Utils.getSection(this.form, sectionElement.id);
+                }
+
+                template.copyTo(section);
+                this.buildForm();
+            } else if (event.from.classList.contains('cf-section')) {
+                if (event.to.classList.contains('cf-form')) {
+                    let section = this.form.addSection();
+                    let component = Utils.getComponent(this.form, event.item.id);
+                    section.addComponent(component);
+
+                    let sourceSection = Utils.getSection(this.form, event.from.id)
+                    sourceSection.components = sourceSection.components.filter(c => c.id !== component.id);
+                    this.buildForm();
+                } else {
+                    this.reorder();
+                }
+            }
+        }
+
+        editForm() {
+            let formElement = Utils.querySelector(this.form, '.cf-form');
+            let configDialogElement = Utils.querySelector(this.form, '.cf-config');
+            formElement.classList.remove('cf-hidden');
+            configDialogElement.classList.add('cf-hidden');
+            this.buildForm();
+        }
+
+        editConfiguration(componentId) {
+            let component = Utils.getComponent(this.form, componentId);
+            let otherComponents = Utils.getAllComponents(this.form)
+                .filter(c => c.id !== componentId);
+
+            Utils.querySelector(this.form, '.cf-config')
+                .innerHTML = Utils.render(Templates.ConditionTemplate, {
+                    vm: {
+                        component: component,
+                        otherComponents: otherComponents
+                    }
+                });
+
+            Utils.querySelectorAll(this.form, '.cf-condition')
+                .forEach((element, index) => {
+                    let targetIdElement = element.querySelector('.cf-target-id');
+                    targetIdElement.value = component.conditions[index].thenRule.componentId;
+                });
+
+            EventRegistrations.registerSaveConfigurationEvent.apply(this);
+            EventRegistrations.registerAddNewConditionEvent.apply(this);
+            EventRegistrations.registerDeleteConditionEvent.apply(this);
+
+            let formElement = Utils.querySelector(this.form, '.cf-form');
+            let configDialogElement = Utils.querySelector(this.form, '.cf-config');
+            formElement.classList.add('cf-hidden');
+            configDialogElement.classList.remove('cf-hidden');
+        }
+
+        addNewCondition(event) {
+            let componentId = event.target.getAttribute('data-component-id');
+            let component = Utils.getComponent(this.form, componentId);
+            component.addCondition(new Condition());
+            this.editConfiguration(componentId);
+        }
+
+        deleteCondition(event) {
+            let componentId = event.target.getAttribute('data-component-id');
+            let component = Utils.getComponent(this.form, componentId);
+            let conditionId = event.target.getAttribute('data-condition-id');
+            component.conditions = component.conditions.filter(condition => condition.id !== conditionId);
+            this.editConfiguration(componentId);
+        }
+
+        saveConfiguration(event) {
+            let componentId = event.target.getAttribute('data-component-id');
+            let component = Utils.getComponent(this.form, componentId);
+            component.title = Utils.querySelector(this.form, '.cf-title')
+                .value;
+            component.required = Utils.querySelector(this.form, '.cf-required')
+                .checked;
+
+            component.options = [];
+            Utils.querySelectorAll(this.form, '.cf-option')
+                .forEach(element => {
+                    let key = element.querySelector('.cf-option-key')
+                        .value;
+                    let value = element.querySelector('.cf-option-value')
+                        .value;
+                    component.options.push({
+                        key: key,
+                        value: value
+                    })
+                });
+
+            component.conditions = [];
+            Utils.querySelectorAll(this.form, '.cf-condition')
+                .forEach(element => {
+                    let condition = new Condition();
+                    condition.ifRule.value = element.querySelector('.cf-if-value')
+                        .value;
+                    condition.thenRule.isHidden = element.querySelector('.cf-target-visibility')
+                        .value === 'hide';
+                    condition.thenRule.componentId = element.querySelector('.cf-target-id')
+                        .value;
+                    component.addCondition(condition);
+                });
+
+            this.editForm();
+        }
+
+        evaluateConditions(event) {
+            let componentElement = event.target.closest('.cf-component');
+
+            if (componentElement) {
+                let component = Utils.getComponent(this.form, componentElement.id);
+
+                if (component) {
+                    let selectedValues = [];
+
+                    if (['dropdownlist'].includes(component.templateName)) {
+                        selectedValues.push(event.target.options[event.target.selectedIndex].text);
+                    } else if (['checkboxgroup'].includes(component.templateName)) {
+                        Array.from(componentElement.querySelectorAll('span>input[type=checkbox]'))
+                            .filter(checkbox => checkbox.checked)
+                            .map(checkbox => {
+                                selectedValues.push(checkbox.nextSibling.innerHTML);
+                            });
+                    } else if (['radiogroup'].includes(component.templateName)) {
+                        selectedValues.push(event.target.nextSibling.innerHTML);
+                    } else {
+                        selectedValues.push(event.target.value);
+                    }
+
+                    component.currentValues = selectedValues;
+                    Utils.evaluateConditions(this.form);
+                }
+            }
         }
     }
 })(window);

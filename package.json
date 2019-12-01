@@ -1,18 +1,22 @@
 {
     "name": "src",
     "version": "1.0.0",
-    "description": "",
+    "description": "Simple form builder",
     "main": "index.js",
     "scripts": {
         "prebuild": "rmdir dist /s /q",
-        "dev": "parcel ./src/demo.html --open",
+        "dev": "parcel ./src/index.html --open",
+        "build-demo": "parcel build ./src/index.html",
         "build": "parcel build ./src/js/index.js --no-source-maps"
     },
     "keywords": [],
-    "author": "",
+    "author": "stackpond@gmail.com",
     "license": "ISC",
     "dependencies": {
         "json-logic-js": "^1.2.2",
+        "mustache": "^3.1.0",
+        "sortablejs": "^1.10.1",
+        "spectre.css": "^0.5.8",
         "uuid": "^3.3.3"
     },
     "devDependencies": {
