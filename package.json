@@ -2,8 +2,10 @@
     "name": "src",
     "version": "1.0.0",
     "description": "Simple form builder",
-    "main": "index.js",
+    "main": "server.js",
     "scripts": {
+        "start": "node server.js",
+        "postinstall": "npm run build-demo",
         "prebuild": "rmdir dist /s /q",
         "dev": "parcel ./src/index.html --open",
         "build-demo": "parcel build ./src/index.html",
@@ -13,8 +15,10 @@
     "author": "stackpond@gmail.com",
     "license": "ISC",
     "dependencies": {
+        "express": "^4.17.1",
         "json-logic-js": "^1.2.2",
         "mustache": "^3.1.0",
+        "serve-static": "^1.14.1",
         "sortablejs": "^1.10.1",
         "spectre.css": "^0.5.8",
         "uuid": "^3.3.3"
