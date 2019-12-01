@@ -122,7 +122,7 @@ export const CheckboxGroupTemplate = `
     <label>{{vm.title}}</label>
     <span>
         {{#vm.options}}
-        <input name='{{vm.name}}' type='checkbox' value='{{key}}' {{#required}} required="required" {{/required}}>
+        <input name='{{vm.name}}' type='checkbox' value='{{key}}' data-value="{{value}}" {{#required}} required="required" {{/required}}>
         <span>{{value}}</span>
         {{/vm.options}}
     </span>
@@ -132,7 +132,7 @@ export const RadioGroupTemplate = `
     <label>{{vm.title}}</label>
     <span>
         {{#vm.options}}
-        <input type='radio' name='{{vm.name}}' value='{{key}}' {{#vm.required}} required="required" {{/vm.required}}>
+        <input type='radio' name='{{vm.name}}' value='{{key}}' data-value="{{value}}" {{#vm.required}} required="required" {{/vm.required}}>
         <span>{{value}}</span>
         {{/vm.options}}
     </span>

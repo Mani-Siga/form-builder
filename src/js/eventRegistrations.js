@@ -11,6 +11,11 @@ export function registerSaveConfigurationEvent() {
         .forEach(element => element.addEventListener('click', event => this.saveConfiguration(event)));
 }
 
+export function registerAddNewOptionEvent() {
+    Utils.querySelectorAll(this.form, '.cf-config-add-option')
+        .forEach(element => element.addEventListener('click', event => this.addNewOption(event)));
+}
+
 export function registerAddNewConditionEvent() {
     Utils.querySelectorAll(this.form, '.cf-config-add-condition')
         .forEach(element => element.addEventListener('click', event => this.addNewCondition(event)));

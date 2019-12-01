@@ -183,6 +183,7 @@ import Sortable from 'sortablejs';
                 });
 
             EventRegistrations.registerSaveConfigurationEvent.apply(this);
+            EventRegistrations.registerAddNewOptionEvent.apply(this);
             EventRegistrations.registerAddNewConditionEvent.apply(this);
             EventRegistrations.registerDeleteConditionEvent.apply(this);
 
@@ -190,6 +191,13 @@ import Sortable from 'sortablejs';
             let configDialogElement = Utils.querySelector(this.form, '.cf-config');
             formElement.classList.add('cf-hidden');
             configDialogElement.classList.remove('cf-hidden');
+        }
+
+        addNewOption(event) {
+            let componentId = event.target.getAttribute('data-component-id');
+            let component = Utils.getComponent(this.form, componentId);
+            component.addOption();
+            this.editConfiguration(componentId);
         }
 
         addNewCondition(event) {
@@ -259,10 +267,10 @@ import Sortable from 'sortablejs';
                         Array.from(componentElement.querySelectorAll('span>input[type=checkbox]'))
                             .filter(checkbox => checkbox.checked)
                             .map(checkbox => {
-                                selectedValues.push(checkbox.nextSibling.innerHTML);
+                                selectedValues.push(checkbox.getAttribute('data-value'));
                             });
                     } else if (['radiogroup'].includes(component.templateName)) {
-                        selectedValues.push(event.target.nextSibling.innerHTML);
+                        selectedValues.push(event.target.getAttribute('data-value'));
                     } else {
                         selectedValues.push(event.target.value);
                     }

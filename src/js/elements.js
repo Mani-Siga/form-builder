@@ -15,6 +15,15 @@ class Component {
         this.currentValues = [];
     }
 
+    addOption() {
+        let option = {
+            key: 'enter-unique-key-name',
+            value: 'enter-value'
+        };
+        this.options.push(option);
+        return option;
+    }
+
     addCondition(condition) {
         this.conditions.push(condition);
     }
