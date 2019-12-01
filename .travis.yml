@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "stable"
+cache:
+  directories:
+    - "node_modules"
+deploy:
+  app: stackpond-formbuilder
+  provider: heroku
+  api_key:
+    secure: $HEROKU_TOKEN
