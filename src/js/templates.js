@@ -1,6 +1,6 @@
 export const MainTemplate = `
     <div id="{{vm.form.id}}" class="cf-form-builder cf-border">
-        <div class="cf-templates-container cf-border">
+        <div class="cf-templates cf-border">
             {{#vm.componentTemplates}}
             <button class="cf-element-template btn btn-primary" data-cf-template-name="{{name}}">{{title}}</button>
             {{/vm.componentTemplates}}
@@ -26,79 +26,102 @@ export const FormTemplate = `
 `;
 
 export const ConditionTemplate = `
-    <div class="cf-config-controls">
-        <div>
-            <input type="submit" class="cf-config-save btn" data-component-id="{{vm.component.id}}" value="Save">
-            <input type="submit" class="cf-config-close btn" data-component-id="{{vm.component.id}}" value="Close">
-            {{#vm.component.options.length}}
-            <button class="cf-config-add-option btn" data-component-id="{{vm.component.id}}">Add Option</button>
-            {{/vm.component.options.length}}
-            {{#vm.otherComponents.length}}
-            <button class="cf-config-add-condition btn" data-component-id="{{vm.component.id}}">Add Condition</button>
-            {{/vm.otherComponents.length}}
+    <form class="cf-config-form">
+        <div class="cf-config-controls">
+            <div>
+                <input type="submit" class="cf-config-save btn" data-component-id="{{vm.component.id}}" value="Save">
+                <input type="button" class="cf-config-close btn" data-component-id="{{vm.component.id}}" value="Close">
+                {{#vm.component.options.length}}
+                <button class="cf-config-add-option btn" data-component-id="{{vm.component.id}}">Add Option</button>
+                {{/vm.component.options.length}}
+                {{#vm.otherComponents.length}}
+                <button class="cf-config-add-condition btn" data-component-id="{{vm.component.id}}">Add Condition</button>
+                {{/vm.otherComponents.length}}
+            </div>
         </div>
-    </div>
-    <hr/>
-    <table class="table table table-hover">
-        <tbody> 
-            <tr>
-                <td><strong>Name</strong></td>
-                <td><input value="{{vm.component.title}}" class="cf-title"></td>
-            </tr>
-            <tr>
-                <td><strong>Required</strong></td>
-                <td><input type="checkbox" class="cf-required" value="{{vm.component.required}}" {{#vm.component.required}}checked{{/vm.component.required}}></td>
-            </tr>
-            {{#vm.component.options.length}}
-            <tr>
-                <td colspan="2"><strong>Options</strong></td>
-            </tr>
-            {{#vm.component.options}}
-            <tr class="cf-option">
-                <td><input class="cf-option-key" value="{{key}}"></td>
-                <td><input class="cf-option-value" value="{{value}}"></td>
-            </tr>
-            {{/vm.component.options}}
-            {{/vm.component.options.length}}
-            {{#vm.otherComponents.length}}
-            {{#vm.component.conditions.length}}
-            <tr>
-                <td colspan="8"><strong>Conditions</strong></td>
-            </tr>
-            {{#vm.component.conditions}}
-            <tr class="cf-condition">
-                <td>If the value is</td>
-                <td>
-                    <input type="text" class="cf-if-value" value="{{ifRule.value}}" class="cf-condition-if-value">
-                </td>
-                <td>Then</td>
-                <td>
-                    <select class="cf-target-visibility">
-                        <option value="hide" {{#thenRule.isHidden}} selected {{/thenRule.isHidden}}>Hide</option>
-                        <option value="show" {{^thenRule.isHidden}} selected {{/thenRule.isHidden}}>Show</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="cf-target-id" value="{{thenRule.componentId}}">
-                        <option value=""></option>
-                        {{#vm.otherComponents}}
-                        <option value="{{id}}">{{title}}</option>
-                        {{/vm.otherComponents}}
-                    </select>
-                </td>
-                <td>
-                    <button class="cf-config-delete-condition btn" data-component-id="{{vm.component.id}}" data-condition-id="{{id}}">Delete</button>
-                </td>
-            </tr>
-            {{/vm.component.conditions}}
-            {{/vm.component.conditions.length}}
-            {{/vm.otherComponents.length}}
-        </tbody>
-    </table>
+        <hr/>
+        <table class="table table table-hover">
+            <tbody> 
+                <tr>
+                    <td><strong>Name</strong></td>
+                    <td>
+                        <input value="{{vm.component.title}}" class="cf-title" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Is Required?</strong></td>
+                    <td>
+                        <input type="checkbox" class="cf-required" value="{{vm.component.required}}" {{#vm.component.required}}checked{{/vm.component.required}}>
+                    </td>
+                </tr>
+                {{#vm.component.options.length}}
+                <tr>
+                    <td colspan="3"><strong>Options</strong></td>
+                </tr>
+                {{#vm.component.options}}
+                <tr class="cf-option">
+                    <td>
+                        <input class="cf-option-key" value="{{key}}" required>
+                    </td>
+                    <td>
+                        <input class="cf-option-value" value="{{value}}" required>
+                    </td>
+                    <td>
+                        <button class="cf-config-delete-option btn" data-component-id="{{vm.component.id}}" data-option-key="{{key}}">Delete</button>
+                    </td>
+                </tr>
+                {{/vm.component.options}}
+                {{/vm.component.options.length}}
+                {{#vm.otherComponents.length}}
+                {{#vm.component.conditions.length}}
+                <tr>
+                    <td colspan="8"><strong>Conditions</strong></td>
+                </tr>
+                {{#vm.component.conditions}}
+                <tr class="cf-condition" data-condition-id="{{id}}">
+                    <td>If the value is</td>
+                    <td>
+                        {{#vm.component.options.length}}
+                        <select class="cf-if-value">
+                            <option value=""></option>
+                        {{#vm.component.options}}
+                            <option value="{{value}}">{{value}}</option>
+                        {{/vm.component.options}}
+                        </select>
+                        {{/vm.component.options.length}}
+                        {{^vm.component.options.length}}
+                            <input type="text" class="cf-if-value" value="{{ifRule.value}}" class="cf-condition-if-value">
+                        {{/vm.component.options.length}}
+                    </td>
+                    <td>Then</td>
+                    <td>
+                        <select class="cf-target-visibility">
+                            <option value="hide" {{#thenRule.isHidden}} selected {{/thenRule.isHidden}}>Hide</option>
+                            <option value="show" {{^thenRule.isHidden}} selected {{/thenRule.isHidden}}>Show</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="cf-target-id" value="{{thenRule.componentId}}">
+                            <option value=""></option>
+                            {{#vm.otherComponents}}
+                            <option value="{{id}}">{{title}}</option>
+                            {{/vm.otherComponents}}
+                        </select>
+                    </td>
+                    <td>
+                        <button class="cf-config-delete-condition btn" data-component-id="{{vm.component.id}}" data-condition-id="{{id}}">Delete</button>
+                    </td>
+                </tr>
+                {{/vm.component.conditions}}
+                {{/vm.component.conditions.length}}
+                {{/vm.otherComponents.length}}
+            </tbody>
+        </table>
+    </form>
 `;
 
 export const HeaderTemplate = `
-    <h1 {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</h1>
+    <label><h1 {{#vm.required}}class="cf-required-field"{{/vm.required}}>{{vm.title}}</h1></label>
 `;
 
 export const LabelTemplate = `

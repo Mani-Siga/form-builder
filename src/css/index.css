@@ -14,7 +14,7 @@
     grid-template-columns: auto 1fr;
 }
 
-.cf-templates-container {
+.cf-templates {
     display: flex;
     flex-direction: column;
 }
@@ -59,6 +59,11 @@
     margin-top: 2px;
 }
 
+.cf-component-title {
+    border: none;
+    border-color: transparent;
+}
+
 .cf-component {
     padding: 5px;
     display: grid;
@@ -70,17 +75,17 @@
     align-items: center;
 }
 
-.cf-component>h1 {
+.cf-component>label:hover {
+    cursor: grab;
+    text-decoration: underline;
+}
+
+.cf-component h1 {
     margin: 0;
 }
 
 .cf-component textarea {
     resize: none;
-}
-
-.cf-component-title {
-    border: none;
-    border-color: transparent;
 }
 
 .cf-component>span>input[type=radio]+span,

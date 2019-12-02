@@ -11,13 +11,11 @@ export function render(template, view) {
 
 export function querySelector(form, selector) {
     return document.getElementById(form.id)
-        .closest('.cf-form-builder')
         .querySelector(selector);
 }
 
 export function querySelectorAll(form, selector) {
     return document.getElementById(form.id)
-        .closest('.cf-form-builder')
         .querySelectorAll(selector);
 }
 

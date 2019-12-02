@@ -31,32 +31,36 @@ import Sortable from 'sortablejs';
         }
 
         buildForm() {
-            let self = this;
-            let formElement = Utils.querySelector(self.form, '.cf-form');
+            let formElement = Utils.querySelector(this.form, '.cf-form');
 
             formElement.innerHTML = Utils.render(Templates.FormTemplate, {
                 vm: this.form
             });
 
             this.refreshDragDrop();
-            EventRegistrations.registerEditConfigurationEvent.apply(this);
+            EventRegistrations.registerConfigurationOpenedEvent.apply(this);
             EventRegistrations.registerFormInputChangedEvent.apply(this);
+
+            // Show form
+            let configDialogElement = Utils.querySelector(this.form, '.cf-config');
+            formElement.classList.remove('cf-hidden');
+            configDialogElement.classList.add('cf-hidden');
         }
 
         reorder() {
-            let form = new Form();
+            let existingForm = this.form;
+            let reorderedForm = new Form();
 
-            document.getElementById(this.form.id)
-                .querySelectorAll('.cf-section')
+            Utils.querySelectorAll(existingForm, '.cf-section')
                 .forEach(sectionElement => {
-                    let existingSection = Utils.getSection(this.form, sectionElement.id);
+                    let existingSection = Utils.getSection(existingForm, sectionElement.id);
 
                     if (existingSection) {
-                        let newSection = form.addSection();
+                        let newSection = reorderedForm.addSection();
 
                         sectionElement.querySelectorAll('.cf-component')
                             .forEach(componentElement => {
-                                let existingComponent = Utils.getComponent(this.form, componentElement.id);
+                                let existingComponent = Utils.getComponent(existingForm, componentElement.id);
 
                                 if (existingComponent) {
                                     newSection.components.push(existingComponent);
@@ -65,14 +69,14 @@ import Sortable from 'sortablejs';
                     }
                 });
 
-            this.form.sections = form.sections.filter(section => section.components.length > 0);
+            existingForm.sections = reorderedForm.sections.filter(section => section.components.length > 0);
             this.buildForm();
         }
 
         setupDragDrop() {
             let self = this;
 
-            Sortable.create(Utils.querySelector(self.form, '.cf-templates-container'), {
+            Sortable.create(Utils.querySelector(self.form, '.cf-templates'), {
                 group: {
                     put: true,
                     pull: 'clone',
@@ -125,7 +129,7 @@ import Sortable from 'sortablejs';
         }
 
         createComponent(event) {
-            if (event.from.classList.contains('cf-templates-container')) {
+            if (event.from.classList.contains('cf-templates')) {
                 let templateName = event.item.getAttribute('data-cf-template-name');
                 let template = ComponentTemplates.find(t => t.name === templateName);
 
@@ -155,18 +159,57 @@ import Sortable from 'sortablejs';
             }
         }
 
-        editForm() {
+        showConfig() {
             let formElement = Utils.querySelector(this.form, '.cf-form');
-            let configDialogElement = Utils.querySelector(this.form, '.cf-config');
-            formElement.classList.remove('cf-hidden');
-            configDialogElement.classList.add('cf-hidden');
-            this.buildForm();
+            let configElement = Utils.querySelector(this.form, '.cf-config');
+            formElement.classList.add('cf-hidden');
+            configElement.classList.remove('cf-hidden');
         }
 
-        editConfiguration(componentId) {
-            let component = Utils.getComponent(this.form, componentId);
+        addNewOption(event) {
+            event.preventDefault();
+
+            let component = this.getComponentConfiguration();
+            component.options.push({
+                key: 'enter-unique-key-name',
+                value: 'enter-value'
+            });
+
+            this.editConfiguration(JSON.stringify(component));
+        }
+
+        addNewCondition(event) {
+            event.preventDefault();
+
+            let component = this.getComponentConfiguration();
+            component.conditions.push(new Condition());
+            this.editConfiguration(JSON.stringify(component));
+        }
+
+        deleteOption(event) {
+            event.preventDefault();
+
+            let component = this.getComponentConfiguration();
+            let optionKey = event.target.getAttribute('data-option-key');
+            component.options = component.options.filter(option => option.key !== optionKey);
+            this.editConfiguration(JSON.stringify(component));
+        }
+
+        deleteCondition(event) {
+            event.preventDefault();
+
+            let component = this.getComponentConfiguration();
+            let conditionId = event.target.getAttribute('data-condition-id');
+            component.conditions = component.conditions.filter(condition => condition.id !== conditionId);
+            this.editConfiguration(JSON.stringify(component));
+        }
+
+        editConfiguration(data) {
+            localStorage.setItem(`configuration-${this.form.id}`, data);
+
+            let component = JSON.parse(data);
             let otherComponents = Utils.getAllComponents(this.form)
-                .filter(c => c.id !== componentId);
+                .filter(c => c.id !== component.id);
 
             Utils.querySelector(this.form, '.cf-config')
                 .innerHTML = Utils.render(Templates.ConditionTemplate, {
@@ -182,43 +225,19 @@ import Sortable from 'sortablejs';
                     targetIdElement.value = component.conditions[index].thenRule.componentId;
                 });
 
-            EventRegistrations.registerCloseConfigurationEvent.apply(this);
-            EventRegistrations.registerSaveConfigurationEvent.apply(this);
-            EventRegistrations.registerAddNewOptionEvent.apply(this);
-            EventRegistrations.registerAddNewConditionEvent.apply(this);
-            EventRegistrations.registerDeleteConditionEvent.apply(this);
+            EventRegistrations.registerConfigurationSavedEvent.apply(this);
+            EventRegistrations.registerConfigurationClosedEvent.apply(this);
+            EventRegistrations.registerOptionAddedEvent.apply(this);
+            EventRegistrations.registerConditionAddedEvent.apply(this);
+            EventRegistrations.registerConditionDeletedEvent.apply(this);
+            EventRegistrations.registerOptionDeletedEvent.apply(this);
 
-            let formElement = Utils.querySelector(this.form, '.cf-form');
-            let configDialogElement = Utils.querySelector(this.form, '.cf-config');
-            formElement.classList.add('cf-hidden');
-            configDialogElement.classList.remove('cf-hidden');
+            this.showConfig();
         }
 
-        addNewOption(event) {
-            let componentId = event.target.getAttribute('data-component-id');
-            let component = Utils.getComponent(this.form, componentId);
-            component.addOption();
-            this.editConfiguration(componentId);
-        }
+        getComponentConfiguration() {
+            let component = JSON.parse(localStorage.getItem(`configuration-${this.form.id}`));
 
-        addNewCondition(event) {
-            let componentId = event.target.getAttribute('data-component-id');
-            let component = Utils.getComponent(this.form, componentId);
-            component.addCondition(new Condition());
-            this.editConfiguration(componentId);
-        }
-
-        deleteCondition(event) {
-            let componentId = event.target.getAttribute('data-component-id');
-            let component = Utils.getComponent(this.form, componentId);
-            let conditionId = event.target.getAttribute('data-condition-id');
-            component.conditions = component.conditions.filter(condition => condition.id !== conditionId);
-            this.editConfiguration(componentId);
-        }
-
-        saveConfiguration(event) {
-            let componentId = event.target.getAttribute('data-component-id');
-            let component = Utils.getComponent(this.form, componentId);
             component.title = Utils.querySelector(this.form, '.cf-title')
                 .value;
             component.required = Utils.querySelector(this.form, '.cf-required')
@@ -241,14 +260,36 @@ import Sortable from 'sortablejs';
             Utils.querySelectorAll(this.form, '.cf-condition')
                 .forEach(element => {
                     let condition = new Condition();
+                    condition.id = element.getAttribute('data-condition-id');
                     condition.ifRule.value = element.querySelector('.cf-if-value')
                         .value;
                     condition.thenRule.isHidden = element.querySelector('.cf-target-visibility')
                         .value === 'hide';
                     condition.thenRule.componentId = element.querySelector('.cf-target-id')
                         .value;
-                    component.addCondition(condition);
+                    component.conditions.push(condition);
                 });
+
+            return component;
+        }
+
+        saveConfiguration(event) {
+            let configForm = Utils.querySelector(this.form, '.cf-config-form');
+            let formElements = [...configForm.elements];
+            let missingValues = formElements.map(element => element.validity.valueMissing);
+
+            if (!missingValues.includes(true)) {
+                event.preventDefault();
+
+                let componentId = event.target.getAttribute('data-component-id');
+                let component = Utils.getComponent(this.form, componentId);
+
+                let clonedComponent = this.getComponentConfiguration();
+                component.title = clonedComponent.title;
+                component.required = clonedComponent.required;
+                component.options = clonedComponent.options;
+                component.conditions = clonedComponent.conditions;
+            }
         }
 
         evaluateConditions(event) {

@@ -79,6 +79,14 @@ export default [{
         }
     },
     {
+        name: 'file',
+        title: 'File',
+        copyTo(section) {
+            let component = new Component(this.title, 'file', false, [], this.name, Templates.InputTemplate);
+            section.addComponent(component);
+        }
+    },
+    {
         name: 'textarea',
         title: 'Text Area',
         copyTo(section) {
