@@ -225,6 +225,16 @@ import Sortable from 'sortablejs';
                     targetIdElement.value = component.conditions[index].thenRule.componentId;
                 });
 
+
+            if (Array.isArray(component.options)) {
+                Utils.querySelectorAll(this.form, '.cf-condition')
+                    .forEach((element, index) => {
+                        let ifValueElement = element.querySelector('.cf-if-value');
+                        ifValueElement.value = (component.options.find(o => o.value === component.conditions[index].ifRule.value) || {})
+                            .value;
+                    });
+            }
+
             EventRegistrations.registerConfigurationSavedEvent.apply(this);
             EventRegistrations.registerConfigurationClosedEvent.apply(this);
             EventRegistrations.registerOptionAddedEvent.apply(this);

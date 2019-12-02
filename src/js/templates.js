@@ -90,7 +90,7 @@ export const ConditionTemplate = `
                         </select>
                         {{/vm.component.options.length}}
                         {{^vm.component.options.length}}
-                            <input type="text" class="cf-if-value" value="{{ifRule.value}}" class="cf-condition-if-value">
+                            <input type="text" class="cf-if-value" value="{{ifRule.value}}">
                         {{/vm.component.options.length}}
                     </td>
                     <td>Then</td>
