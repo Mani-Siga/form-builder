@@ -3,10 +3,10 @@ import * as Templates from './templates.js'
 
 class Component {
     constructor(title, type, required, options, templateName, template) {
-        this.title = title || '<Title not set>';
-        this.type = type || '';
-        this.required = required || false;
-        this.options = options || [];
+        this.title = title;
+        this.type = type;
+        this.required = required;
+        this.options = options;
         this.templateName = templateName;
         this.template = template;
 
@@ -16,21 +16,9 @@ class Component {
         this.currentValues = [];
     }
 
-    addOption() {
-        let option = {
-            key: 'enter-unique-key-name',
-            value: 'enter-value'
-        };
-        this.options.push(option);
-        return option;
-    }
-
-    addCondition(condition) {
-        this.conditions.push(condition);
-    }
-
     render() {
         this.currentValues = [];
+        this.hasOptions = Array.isArray(this.options);
 
         return Utils.render(this.template, {
             vm: this
@@ -42,7 +30,7 @@ export default [{
         name: 'header',
         title: 'Header',
         copyTo(section) {
-            let component = new Component(this.title, '', false, [], this.name, Templates.HeaderTemplate);
+            let component = new Component(this.title, '', false, null, this.name, Templates.HeaderTemplate);
             section.addComponent(component)
         }
     },
@@ -50,7 +38,7 @@ export default [{
         name: 'label',
         title: 'Label',
         copyTo(section) {
-            let component = new Component(this.title, '', false, [], this.name, Templates.LabelTemplate);
+            let component = new Component(this.title, '', false, null, this.name, Templates.LabelTemplate);
             section.addComponent(component);
         }
     },
@@ -58,7 +46,7 @@ export default [{
         name: 'input',
         title: 'Input',
         copyTo(section) {
-            let component = new Component(this.title, 'text', false, [], this.name, Templates.InputTemplate);
+            let component = new Component(this.title, 'text', false, null, this.name, Templates.InputTemplate);
             section.addComponent(component);
         }
     },
@@ -66,7 +54,7 @@ export default [{
         name: 'email',
         title: 'Email',
         copyTo(section) {
-            let component = new Component(this.title, 'email', false, [], this.name, Templates.InputTemplate);
+            let component = new Component(this.title, 'email', false, null, this.name, Templates.InputTemplate);
             section.addComponent(component);
         }
     },
@@ -74,7 +62,23 @@ export default [{
         name: 'date',
         title: 'Date',
         copyTo(section) {
-            let component = new Component(this.title, 'date', false, [], this.name, Templates.InputTemplate);
+            let component = new Component(this.title, 'date', false, null, this.name, Templates.InputTemplate);
+            section.addComponent(component);
+        }
+    },
+    {
+        name: 'time',
+        title: 'Time',
+        copyTo(section) {
+            let component = new Component(this.title, 'time', false, null, this.name, Templates.InputTemplate);
+            section.addComponent(component);
+        }
+    },
+    {
+        name: 'number',
+        title: 'Number',
+        copyTo(section) {
+            let component = new Component(this.title, 'number', false, null, this.name, Templates.InputTemplate);
             section.addComponent(component);
         }
     },
@@ -82,7 +86,7 @@ export default [{
         name: 'file',
         title: 'File',
         copyTo(section) {
-            let component = new Component(this.title, 'file', false, [], this.name, Templates.InputTemplate);
+            let component = new Component(this.title, 'file', false, null, this.name, Templates.InputTemplate);
             section.addComponent(component);
         }
     },
@@ -90,7 +94,7 @@ export default [{
         name: 'textarea',
         title: 'Text Area',
         copyTo(section) {
-            let component = new Component(this.title, '', false, [], this.name, Templates.TextareaTemplate);
+            let component = new Component(this.title, '', false, null, this.name, Templates.TextareaTemplate);
             section.addComponent(component);
         }
     },

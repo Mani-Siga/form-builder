@@ -240,21 +240,23 @@ import Sortable from 'sortablejs';
 
             component.title = Utils.querySelector(this.form, '.cf-title')
                 .value;
-            component.required = Utils.querySelector(this.form, '.cf-required')
+            component.required = Utils.querySelector(this.form, '.cf-required-value')
                 .checked;
 
-            component.options = [];
+            let options = [];
             Utils.querySelectorAll(this.form, '.cf-option')
                 .forEach(element => {
                     let key = element.querySelector('.cf-option-key')
                         .value;
                     let value = element.querySelector('.cf-option-value')
                         .value;
-                    component.options.push({
+                    options.push({
                         key: key,
                         value: value
                     })
                 });
+
+            component.options = options;
 
             component.conditions = [];
             Utils.querySelectorAll(this.form, '.cf-condition')

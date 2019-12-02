@@ -94,7 +94,7 @@
     margin-left: 5px;
 }
 
-.cf-required-field::after {
+.cf-required::after {
     content: ' *';
     color: red;
 }
