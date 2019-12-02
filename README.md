@@ -1,7 +1,9 @@
 # Simple Form Builder
 Minimalistic form builder library using vanilla javascript.
 
-![Example](Screenshot.png)
+![Example](Screenshot-1.png)
+
+![Example](Screenshot-2.png)
 
 # Features
 

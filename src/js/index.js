@@ -256,7 +256,7 @@ import Sortable from 'sortablejs';
                     })
                 });
 
-            component.options = options;
+            component.options = Array.isArray(component.options) ? options : null;
 
             component.conditions = [];
             Utils.querySelectorAll(this.form, '.cf-condition')
