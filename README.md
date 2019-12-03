@@ -2,6 +2,7 @@
 
 Minimalistic form builder library using vanilla javascript. [Click here to see the form builder in action](http://formbuilder.stackpond.com/)
 
+
 ![Example](Screenshot-1.png)
 
 ![Example](Screenshot-2.png)
