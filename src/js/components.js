@@ -18,6 +18,11 @@ class Component {
 
     render() {
         this.currentValues = [];
+
+        if (this.conditions.length > 0) {
+            this.isHiddenByDefault = this.conditions[0].thenRule.isHidden;
+        }
+
         this.hasOptions = Array.isArray(this.options);
 
         return Utils.render(this.template, {

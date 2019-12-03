@@ -1,14 +1,14 @@
 import * as Utils from './utils.js'
 
 class If {
-    constructor(value) {
+    constructor(value, otherComponentId) {
         this.value = value;
+        this.otherComponentId = otherComponentId;
     }
 }
 
 class Then {
-    constructor(component = {}, isHidden = false) {
-        this.componentId = component.id;
+    constructor(isHidden = false) {
         this.isHidden = isHidden;
     }
 }

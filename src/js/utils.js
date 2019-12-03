@@ -39,22 +39,38 @@ export function getCondition(component, id) {
 }
 
 export function evaluateConditions(form) {
-    querySelectorAll(form, '.cf-component')
-        .forEach(element => {
-            element.classList.remove('cf-hidden');
-        });
-
     getAllComponents(form)
         .forEach(component => {
-            component.conditions.forEach(condition => {
-                let element = document.getElementById(condition.thenRule.componentId);
-                if (component.currentValues.includes(condition.ifRule.value)) {
-                    if (condition.thenRule.isHidden) {
-                        element.classList.add('cf-hidden');
+            let componentElement = document.getElementById(component.id);
+
+            let conditionResults = component.conditions.map(condition => {
+                let otherComponent = getComponent(form, condition.ifRule.otherComponentId);
+
+                if (otherComponent) {
+                    return otherComponent.currentValues.includes(condition.ifRule.value)
+                }
+
+                return false;
+            });
+
+            if (component.conditions.length > 0) {
+                let visibleByDefault = component.conditions[0].thenRule.isHidden;
+                let hiddenIfConditionsMet = component.conditions[0].thenRule.isHidden;
+
+                if (!visibleByDefault) {
+                    componentElement.classList.add('cf-hidden');
+                } else {
+                    componentElement.classList.remove('cf-hidden');
+                }
+
+                if (conditionResults.every(p => p)) {
+                    if (hiddenIfConditionsMet) {
+                        componentElement.classList.add('cf-hidden');
+
                     } else {
-                        element.classList.remove('cf-hidden');
+                        componentElement.classList.remove('cf-hidden');
                     }
                 }
-            });
+            }
         });
 }

@@ -41,3 +41,13 @@ export function registerFormInputChangedEvent() {
     ['input', 'change'].forEach(event => Utils.querySelectorAll(this.form, '.cf-form')
         .forEach(form => form.addEventListener(event, event => this.evaluateConditions(event))))
 }
+
+export function registerFormPreviewEvent() {
+    Utils.querySelectorAll(this.form, '.cf-preview')
+        .forEach(element => element.addEventListener('click', event => this.previewForm()));
+}
+
+export function registerCloseFormPreviewEvent() {
+    Utils.querySelectorAll(this.form, '.cf-close-preview')
+        .forEach(element => element.addEventListener('click', event => this.buildForm()));
+}
