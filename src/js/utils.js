@@ -47,7 +47,7 @@ export function evaluateConditions(form) {
                 let otherComponent = getComponent(form, condition.ifRule.otherComponentId);
 
                 if (otherComponent) {
-                    return otherComponent.currentValues.includes(condition.ifRule.value)
+                    return otherComponent.currentValues.includes(condition.ifRule.otherComponentValue)
                 }
 
                 return false;
@@ -55,7 +55,6 @@ export function evaluateConditions(form) {
 
             if (component.conditions.length > 0) {
                 let visibleByDefault = component.conditions[0].thenRule.isHidden;
-                let hiddenIfConditionsMet = component.conditions[0].thenRule.isHidden;
 
                 if (!visibleByDefault) {
                     componentElement.classList.add('cf-hidden');
@@ -64,7 +63,7 @@ export function evaluateConditions(form) {
                 }
 
                 if (conditionResults.every(p => p)) {
-                    if (hiddenIfConditionsMet) {
+                    if (visibleByDefault) {
                         componentElement.classList.add('cf-hidden');
 
                     } else {

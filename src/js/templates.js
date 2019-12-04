@@ -1,63 +1,68 @@
 export const MainTemplate = `
-    <div id="{{vm.form.id}}" class="cf-form-builder cf-border">
-        <div class="cf-editor">
-            <form class="cf-form cf-border">
+    <div id="{{vm.form.id}}" class="cf-form-builder">
+        <div class="cf-editor cf-border">
+            <div>
+                <button class="cf-open-preview btn btn-primary">Preview Form</button>
+                <button class="cf-close-preview cf-hidden btn btn-primary">Close Preview</button>
+                <hr/>
+            </div>
+            <form class="cf-form">
             </form>
             <div class="cf-config cf-border cf-hidden"></div>
         </div>
-        <div class="cf-templates cf-border">
+        <div class="cf-component-templates cf-border">
             {{#vm.componentTemplates}}
-            <button class="cf-element-template btn btn-primary" data-cf-template-name="{{name}}">{{title}}</button>
+            <button class="cf-component-template btn btn-primary" data-cf-component-template-name="{{name}}">{{title}}</button>
             {{/vm.componentTemplates}}
         </div>
     </div>
 `;
 
 export const FormTemplate = `
-    {{#vm.sections.length}}
-    <div>
-        <button class="cf-preview btn btn-primary">Preview Form</button>
-        <button class="cf-close-preview cf-hidden btn btn-primary">Close Preview</button>
-    </div>
-    {{/vm.sections.length}}
     {{#vm.sections}}
-    <div id='{{id}}' class='cf-section'>
+    <div id="{{id}}" class="cf-section">
         {{#components}}
-            <div id='{{id}}' class='cf-component cf-border' data-cf-template-name='{{templateName}}'>
-                {{{render}}}
-            </div>
+        <div id="{{id}}" class="cf-component cf-border" data-cf-component-template-name="{{templateName}}">
+            {{{render}}}
+        </div>
         {{/components}}
     </div>
     {{/vm.sections}}
 `;
 
+export const IfValueDataListTemplate = `
+    <datalist id="cf-component-condition-if-value-list">
+        {{#vm.options}}
+        <option value="{{value}}">
+        {{/vm.options}}
+    </datalist>
+`;
+
 export const ConditionTemplate = `
-    <form class="cf-config-form">
+    <form class="cf-config-form" data-component-id="{{vm.component.id}}">
         <div class="cf-config-controls">
-            <div>
-                <input type="submit" class="cf-config-save btn" data-component-id="{{vm.component.id}}" value="Save">
-                <input type="button" class="cf-config-close btn" data-component-id="{{vm.component.id}}" value="Close">
-                {{#vm.component.hasOptions}}
-                <button class="cf-config-add-option btn" data-component-id="{{vm.component.id}}">Add Option</button>
-                {{/vm.component.hasOptions}}
-                {{#vm.otherComponents.length}}
-                <button class="cf-config-add-condition btn" data-component-id="{{vm.component.id}}">Add Condition</button>
-                {{/vm.otherComponents.length}}
-            </div>
+            <input type="submit" class="cf-config-save btn btn-primary" value="Save">
+            <input type="button" class="cf-config-close btn btn-primary" value="Close">
+            {{#vm.component.hasOptions}}
+            <button class="cf-config-add-option btn btn-primary">Add Option</button>
+            {{/vm.component.hasOptions}}
+            {{#vm.otherComponents.length}}
+            <button class="cf-config-add-condition btn btn-primary">Add Condition</button>
+            {{/vm.otherComponents.length}}
         </div>
         <hr/>
-        <table class="table table table-hover">
+        <table class="table table-striped table-hover">
             <tbody> 
                 <tr>
                     <td><strong>Name</strong></td>
-                    <td>
-                        <input value="{{vm.component.title}}" class="cf-title" required>
+                    <td colspan="4">
+                        <input name="componentTitle" value="{{vm.component.title}}" class="cf-component-title" required>
                     </td>
                 </tr>
                 <tr>
                     <td><strong>Is Required?</strong></td>
-                    <td>
-                        <input type="checkbox" class="cf-required-value" value="{{vm.component.required}}" {{#vm.component.required}}checked{{/vm.component.required}}>
+                    <td colspan="4">
+                        <input name="componentRequired" type="checkbox" class="cf-component-required" value="{{vm.component.required}}" {{#vm.component.required}}checked{{/vm.component.required}}>
                     </td>
                 </tr>
                 {{#vm.component.options.length}}
@@ -65,15 +70,15 @@ export const ConditionTemplate = `
                     <td colspan="3"><strong>Options</strong></td>
                 </tr>
                 {{#vm.component.options}}
-                <tr class="cf-option">
+                <tr class="cf-component-option">
                     <td>
-                        <input class="cf-option-key" value="{{key}}" required>
+                        <input class="cf-component-option-key" value="{{key}}" required>
                     </td>
                     <td>
-                        <input class="cf-option-value" value="{{value}}" required>
+                        <input class="cf-component-option-value" value="{{value}}" required>
                     </td>
                     <td>
-                        <button class="cf-config-delete-option btn" data-component-id="{{vm.component.id}}" data-option-key="{{key}}">Delete</button>
+                        <button class="cf-config-delete-option btn btn-primary" data-component-option-key="{{key}}">Delete</button>
                     </td>
                 </tr>
                 {{/vm.component.options}}
@@ -85,18 +90,18 @@ export const ConditionTemplate = `
                         <strong>Conditions</strong>
                     </td>
                     <td colspan="4">
-                        <select class="cf-source-visibility">
-                            <option value="show" {{^vm.component.isHiddenByDefault}} selected {{/vm.component.isHiddenByDefault}}>Show</option>
-                            <option value="hide" {{#vm.component.isHiddenByDefault}} selected {{/vm.component.isHiddenByDefault}}>Hide</option>
-                        </select>
+                        I should only be&nbsp<select name="componentVisibility" class="cf-source-visibility">
+                            <option value="show" {{^vm.component.isHiddenByDefault}} selected {{/vm.component.isHiddenByDefault}}>visible</option>
+                            <option value="hide" {{#vm.component.isHiddenByDefault}} selected {{/vm.component.isHiddenByDefault}}>hidden</option>
+                        </select>&nbspwhen all of the following conditions are met.
                     </td>
                 </td>
                 </tr>
                 {{#vm.component.conditions}}
-                <tr class="cf-condition" data-condition-id="{{id}}">
-                    <td></td>
+                <tr class="cf-component-condition" data-component-condition-id="{{id}}">
+                    <td>Value of</td>
                     <td>
-                        <select class="cf-othercomponent-id" value="{{ifRule.otherComponentId}}">
+                        <select class="cf-component-condition-othercomponent-selector" value="{{ifRule.otherComponentId}}">
                             <option value=""></option>
                             {{#vm.otherComponents}}
                             <option value="{{id}}">{{title}}</option>
@@ -105,10 +110,11 @@ export const ConditionTemplate = `
                     </td>
                     <td>is</td>
                     <td>
-                        <input type="text" class="cf-if-value" value="{{ifRule.value}}">
+                        <input type="text" class="cf-component-condition-othercomponent-if-value" value="{{ifRule.otherComponentValue}}" list="cf-component-condition-if-value-list">
+                        <div class="cf-component-condition-if-value-list"></div>
                     </td>
                     <td>
-                        <button class="cf-config-delete-condition btn" data-component-id="{{vm.component.id}}" data-condition-id="{{id}}">Delete</button>
+                        <button class="cf-config-delete-condition btn btn-primary" data-component-condition-id="{{id}}">Delete</button>
                     </td>
                 </tr>
                 {{/vm.component.conditions}}
@@ -130,20 +136,20 @@ export const LabelTemplate = `
 export const InputTemplate = `
     <label {{#vm.required}}class="cf-required"{{/vm.required}}>{{vm.title}}</label>
     <span>
-        <input type='{{vm.type}}' name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}>
+        <input class="component-element" type='{{vm.type}}' name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}>
     </span>
 `;
 
 export const TextareaTemplate = `
     <label {{#vm.required}}class="cf-required"{{/vm.required}}>{{vm.title}}</label>
     <span>
-        <textarea name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}></textarea>
+        <textarea class="component-element" name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}></textarea>
     </span>
 `;
 
 export const CheckboxGroupTemplate = `
     <label {{#vm.required}}class="cf-required"{{/vm.required}}>{{vm.title}}</label>
-    <span>
+    <span class="component-element">
         {{#vm.options}}
         <input name='{{vm.name}}' type='checkbox' value='{{key}}' data-value="{{value}}" {{#required}} required="required" {{/required}}>
         <span>{{value}}</span>
@@ -153,7 +159,7 @@ export const CheckboxGroupTemplate = `
 
 export const RadioGroupTemplate = `
     <label {{#vm.required}}class="cf-required"{{/vm.required}}>{{vm.title}}</label>
-    <span>
+    <span class="component-element">
         {{#vm.options}}
         <input type='radio' name='{{vm.name}}' value='{{key}}' data-value="{{value}}" {{#vm.required}} required="required" {{/vm.required}}>
         <span>{{value}}</span>
@@ -164,11 +170,11 @@ export const RadioGroupTemplate = `
 export const DropdownListTemplate = `
     <label {{#vm.required}}class="cf-required"{{/vm.required}}>{{vm.title}}</label>
     <span>
-    <select name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}>
-        <option></option>
-        {{#vm.options}}
-        <option value='{{key}}'>{{value}}</option>
-        {{/vm.options}}
-    </select>
+        <select class="component-element" name='{{vm.name}}' {{#vm.required}} required="required" {{/vm.required}}>
+            <option></option>
+            {{#vm.options}}
+            <option value='{{key}}'>{{value}}</option>
+            {{/vm.options}}
+        </select>
     </span>
 `;

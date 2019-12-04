@@ -1,9 +1,9 @@
 import * as Utils from './utils.js'
 
 class If {
-    constructor(value, otherComponentId) {
-        this.value = value;
+    constructor(otherComponentId, otherComponentValue) {
         this.otherComponentId = otherComponentId;
+        this.otherComponentValue = otherComponentValue;
     }
 }
 

@@ -14,18 +14,20 @@
     grid-template-columns: 1fr auto;
 }
 
-.cf-templates {
+.cf-component-templates {
     display: flex;
     flex-direction: column;
 }
 
-.cf-preview, .cf-close-preview {
-    margin: 5px;;
+.cf-open-preview,
+.cf-close-preview {
+    margin: 5px;
+    ;
 }
 
 .cf-editor {
     display: grid;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: auto 1fr auto;
 }
 
 .cf-form {
@@ -40,33 +42,30 @@
 
 .cf-config-controls {
     display: grid;
+    grid-template-columns: auto auto auto auto 1fr;
     grid-gap: 10px;
 }
 
-.cf-element-template {
+.cf-component-title,
+.cf-component-option-key,
+.cf-component-option-value,
+.cf-component-condition-if-value,
+.cf-component-condition-othercomponent-selector {
+    width: 100%;
+    border: none;
+    padding: 10px;
+    border-color: transparent;
+}
+
+.cf-component-template {
 
     margin: 5px;
     text-align: center;
 }
 
-.cf-condition-row {
-    padding: 5px;
-    margin-top: 1px;
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: repeat(8, 1fr);
-    grid-auto-rows: auto;
-    align-items: center;
-}
-
 .cf-section {
     display: flex;
     margin-top: 2px;
-}
-
-.cf-component-title {
-    border: none;
-    border-color: transparent;
 }
 
 .cf-component {
@@ -106,4 +105,8 @@
 
 .cf-hidden {
     display: none;
+}
+
+.component-element {
+    width: 60%;
 }

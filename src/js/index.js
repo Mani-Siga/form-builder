@@ -31,10 +31,6 @@ import Sortable from 'sortablejs';
         }
 
         buildForm() {
-            this.form.isInPreviewMode = false;
-            Utils.querySelector(this.form, '.cf-templates')
-                .classList.remove('cf-hidden');
-
             let formElement = Utils.querySelector(this.form, '.cf-form');
 
             formElement.innerHTML = Utils.render(Templates.FormTemplate, {
@@ -44,7 +40,7 @@ import Sortable from 'sortablejs';
             this.refreshDragDrop();
             EventRegistrations.registerConfigurationOpenedEvent.apply(this);
             EventRegistrations.registerFormInputChangedEvent.apply(this);
-            EventRegistrations.registerFormPreviewEvent.apply(this);
+            EventRegistrations.registerOpenFormPreviewEvent.apply(this);
             EventRegistrations.registerCloseFormPreviewEvent.apply(this);
 
             // Show form
@@ -53,17 +49,34 @@ import Sortable from 'sortablejs';
             configDialogElement.classList.add('cf-hidden');
         }
 
-        previewForm() {
-            this.form.isInPreviewMode = true;
+        isInPreviewMode() {
+            return !Utils.querySelector(this.form, '.cf-close-preview')
+                .classList.contains('cf-hidden');
+        }
 
+        preview() {
             event.preventDefault();
-            Utils.querySelector(this.form, '.cf-templates')
+
+            this.buildForm();
+
+            Utils.querySelector(this.form, '.cf-component-templates')
                 .classList.add('cf-hidden');
-            Utils.querySelector(this.form, '.cf-preview')
+            Utils.querySelector(this.form, '.cf-open-preview')
                 .classList.add('cf-hidden');
             Utils.querySelector(this.form, '.cf-close-preview')
                 .classList.remove('cf-hidden');
             Utils.evaluateConditions(this.form);
+        }
+
+        closePreview() {
+            event.preventDefault();
+
+            Utils.querySelector(this.form, '.cf-close-preview')
+                .classList.add('cf-hidden');
+            Utils.querySelectorAll(this.form, '.cf-component-templates, .cf-open-preview')
+                .forEach(element => element.classList.remove('cf-hidden'));
+
+            this.buildForm();
         }
 
         reorder() {
@@ -95,7 +108,7 @@ import Sortable from 'sortablejs';
         setupDragDrop() {
             let self = this;
 
-            Sortable.create(Utils.querySelector(self.form, '.cf-templates'), {
+            Sortable.create(Utils.querySelector(self.form, '.cf-component-templates'), {
                 group: {
                     put: true,
                     pull: 'clone',
@@ -145,11 +158,12 @@ import Sortable from 'sortablejs';
                         }
                     });
                 });
+
         }
 
         createComponent(event) {
-            if (event.from.classList.contains('cf-templates')) {
-                let templateName = event.item.getAttribute('data-cf-template-name');
+            if (event.from.classList.contains('cf-component-templates')) {
+                let templateName = event.item.getAttribute('data-cf-component-template-name');
                 let template = ComponentTemplates.find(t => t.name === templateName);
 
                 let section = null;
@@ -188,7 +202,7 @@ import Sortable from 'sortablejs';
         addNewOption(event) {
             event.preventDefault();
 
-            let component = this.getComponentConfiguration();
+            let component = this.getInMemoryConfiguration();
             component.options.push({
                 key: 'enter-unique-key-name',
                 value: 'enter-value'
@@ -200,16 +214,15 @@ import Sortable from 'sortablejs';
         addNewCondition(event) {
             event.preventDefault();
 
-            let component = this.getComponentConfiguration();
+            let component = this.getInMemoryConfiguration();
             component.conditions.push(new Condition());
             this.editConfiguration(JSON.stringify(component));
         }
 
         deleteOption(event) {
             event.preventDefault();
-
-            let component = this.getComponentConfiguration();
-            let optionKey = event.target.getAttribute('data-option-key');
+            let component = this.getInMemoryConfiguration();
+            let optionKey = event.target.getAttribute('data-component-option-key');
             component.options = component.options.filter(option => option.key !== optionKey);
             this.editConfiguration(JSON.stringify(component));
         }
@@ -217,22 +230,19 @@ import Sortable from 'sortablejs';
         deleteCondition(event) {
             event.preventDefault();
 
-            let component = this.getComponentConfiguration();
-            let conditionId = event.target.getAttribute('data-condition-id');
-            component.conditions = component.conditions.filter(condition => condition.id !== conditionId);
+            let component = this.getInMemoryConfiguration();
+            let conditionIdToBeDeleted = event.target.getAttribute('data-component-condition-id');
+            component.conditions = component.conditions.filter(condition => condition.id !== conditionIdToBeDeleted);
             this.editConfiguration(JSON.stringify(component));
         }
 
         editConfiguration(data) {
-            if (this.form.isInPreviewMode) {
-                return;
-            }
-
+            if (this.isInPreviewMode()) return;
             localStorage.setItem(`configuration-${this.form.id}`, data);
 
             let component = JSON.parse(data);
             let otherComponents = Utils.getAllComponents(this.form)
-                .filter(c => c.id !== component.id);
+                .filter(c => c.id !== component.id && !['header', 'label'].includes(c.templateName));
 
             Utils.querySelector(this.form, '.cf-config')
                 .innerHTML = Utils.render(Templates.ConditionTemplate, {
@@ -242,21 +252,36 @@ import Sortable from 'sortablejs';
                     }
                 });
 
-            Utils.querySelectorAll(this.form, '.cf-condition')
-                .forEach((element, index) => {
-                    let otherComponentElement = element.querySelector('.cf-othercomponent-id');
-                    otherComponentElement.value = component.conditions[index].ifRule.otherComponentId;
+            let configForm = Utils.querySelector(this.form, '.cf-config-form');
+
+            configForm.querySelectorAll('.cf-component-condition')
+                .forEach((conditionRow, conditionRowIndex) => {
+                    let otherComponentId = component.conditions[conditionRowIndex].ifRule.otherComponentId;;
+                    let otherComponent = Utils.getComponent(this.form, otherComponentId);
+
+                    let otherComponentElement = conditionRow.querySelector('.cf-component-condition-othercomponent-selector');
+                    otherComponentElement.value = otherComponentId;
+
+                    if (otherComponentId) {
+                        configForm.querySelector(".cf-component-condition-if-value-list")
+                            .innerHTML = Utils.render(Templates.IfValueDataListTemplate, {
+                                vm: otherComponent
+                            });
+                    }
+
+                    otherComponentElement.addEventListener('change', event => {
+                        let otherComponentId = event.target.value;
+
+                        if (otherComponentId) {
+                            let otherComponent = Utils.getComponent(this.form, otherComponentId);
+                            configForm.querySelector(".cf-component-condition-if-value-list")
+                                .innerHTML = Utils.render(Templates.IfValueDataListTemplate, {
+                                    vm: otherComponent
+                                });
+                        }
+                    });
                 });
 
-
-            if (Array.isArray(component.options)) {
-                Utils.querySelectorAll(this.form, '.cf-condition')
-                    .forEach((element, index) => {
-                        let ifValueElement = element.querySelector('.cf-if-value');
-                        ifValueElement.value = (component.options.find(o => o.value === component.conditions[index].ifRule.value) || {})
-                            .value;
-                    });
-            }
 
             EventRegistrations.registerConfigurationSavedEvent.apply(this);
             EventRegistrations.registerConfigurationClosedEvent.apply(this);
@@ -268,49 +293,42 @@ import Sortable from 'sortablejs';
             this.showConfig();
         }
 
-        getComponentConfiguration() {
+        getInMemoryConfiguration() {
+            let configForm = Utils.querySelector(this.form, '.cf-config-form');
             let component = JSON.parse(localStorage.getItem(`configuration-${this.form.id}`));
 
-            component.title = Utils.querySelector(this.form, '.cf-title')
-                .value;
-            component.required = Utils.querySelector(this.form, '.cf-required-value')
-                .checked;
+            component.title = configForm.componentTitle.value;
+            component.required = configForm.componentRequired.checked;
 
-            let options = [];
-            Utils.querySelectorAll(this.form, '.cf-option')
-                .forEach(element => {
-                    let key = element.querySelector('.cf-option-key')
-                        .value;
-                    let value = element.querySelector('.cf-option-value')
-                        .value;
-                    options.push({
-                        key: key,
-                        value: value
+            let optionRows = configForm.querySelectorAll('.cf-component-option');
+            let optionKeys = configForm.querySelectorAll('.cf-component-option-key');
+            let optionValues = configForm.querySelectorAll('.cf-component-option-value');
+
+            if (optionRows.length > 0) {
+                component.options = [];
+
+                optionRows.forEach((_, optionIndex) => {
+                    component.options.push({
+                        key: optionKeys[optionIndex].value,
+                        value: optionValues[optionIndex].value
                     })
                 });
-
-            component.options = Array.isArray(component.options) ? options : null;
-
-            component.conditions = [];
-
-            let isHidden = false;
-            let isHiddenElement = Utils.querySelector(this.form, '.cf-source-visibility');
-
-            if (isHiddenElement) {
-                isHidden = isHiddenElement.value === 'hide';
             }
 
-            Utils.querySelectorAll(this.form, '.cf-condition')
-                .forEach(element => {
-                    let condition = new Condition();
-                    condition.id = element.getAttribute('data-condition-id');
-                    condition.ifRule.value = element.querySelector('.cf-if-value')
-                        .value;
-                    condition.ifRule.otherComponentId = element.querySelector('.cf-othercomponent-id')
-                        .value;
-                    condition.thenRule.isHidden = isHidden;
-                    component.conditions.push(condition);
-                });
+            component.conditions = [];
+            let conditionnRows = configForm.querySelectorAll('.cf-component-condition');
+            let conditionOtherComponentSelectors = configForm.querySelectorAll('.cf-component-condition-othercomponent-selector');
+            let conditionOtherComponentIfValues = configForm.querySelectorAll('.cf-component-condition-othercomponent-if-value');
+
+            conditionnRows.forEach((conditionRow, conditionIndex) => {
+                let condition = new Condition();
+                condition.id = conditionRow.getAttribute('data-component-condition-id');
+                console.log(condition.id)
+                condition.ifRule.otherComponentId = conditionOtherComponentSelectors[conditionIndex].value;
+                condition.ifRule.otherComponentValue = conditionOtherComponentIfValues[conditionIndex].value;
+                condition.thenRule.isHidden = configForm.elements.componentVisibility.value === 'hide';
+                component.conditions.push(condition);
+            });
 
             return component;
         }
@@ -323,44 +341,46 @@ import Sortable from 'sortablejs';
             if (!missingValues.includes(true)) {
                 event.preventDefault();
 
-                let componentId = event.target.getAttribute('data-component-id');
+                let componentId = configForm.getAttribute('data-component-id');
                 let component = Utils.getComponent(this.form, componentId);
 
-                let clonedComponent = this.getComponentConfiguration();
+                let clonedComponent = this.getInMemoryConfiguration();
                 component.title = clonedComponent.title;
                 component.required = clonedComponent.required;
                 component.options = clonedComponent.options;
                 component.conditions = clonedComponent.conditions;
+
+                console.log(component);
             }
         }
 
         evaluateConditions(event) {
-            if (this.form.isInPreviewMode) {
-                let componentElement = event.target.closest('.cf-component');
+            if (!this.isInPreviewMode()) return;
 
-                if (componentElement) {
-                    let component = Utils.getComponent(this.form, componentElement.id);
+            let componentElement = event.target.closest('.cf-component');
 
-                    if (component) {
-                        let selectedValues = [];
+            if (componentElement) {
+                let component = Utils.getComponent(this.form, componentElement.id);
 
-                        if (['dropdownlist'].includes(component.templateName)) {
-                            selectedValues.push(event.target.options[event.target.selectedIndex].text);
-                        } else if (['checkboxgroup'].includes(component.templateName)) {
-                            Array.from(componentElement.querySelectorAll('span>input[type=checkbox]'))
-                                .filter(checkbox => checkbox.checked)
-                                .map(checkbox => {
-                                    selectedValues.push(checkbox.getAttribute('data-value'));
-                                });
-                        } else if (['radiogroup'].includes(component.templateName)) {
-                            selectedValues.push(event.target.getAttribute('data-value'));
-                        } else {
-                            selectedValues.push(event.target.value);
-                        }
+                if (component) {
+                    let selectedValues = [];
 
-                        component.currentValues = selectedValues;
-                        Utils.evaluateConditions(this.form);
+                    if (['dropdownlist'].includes(component.templateName)) {
+                        selectedValues.push(event.target.options[event.target.selectedIndex].text);
+                    } else if (['checkboxgroup'].includes(component.templateName)) {
+                        Array.from(componentElement.querySelectorAll('span>input[type=checkbox]'))
+                            .filter(checkbox => checkbox.checked)
+                            .map(checkbox => {
+                                selectedValues.push(checkbox.getAttribute('data-value'));
+                            });
+                    } else if (['radiogroup'].includes(component.templateName)) {
+                        selectedValues.push(event.target.getAttribute('data-value'));
+                    } else {
+                        selectedValues.push(event.target.value);
                     }
+
+                    component.currentValues = selectedValues;
+                    Utils.evaluateConditions(this.form);
                 }
             }
         }
