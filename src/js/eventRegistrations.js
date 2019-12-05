@@ -41,21 +41,3 @@ export function registerFormInputChangedEvent() {
     ['input', 'change'].forEach(event => Utils.querySelectorAll(this.form, '.cf-form')
         .forEach(form => form.addEventListener(event, event => this.evaluateConditions(event))))
 }
-
-export function registerLogFormDataEvent() {
-    Utils.querySelectorAll(this.form, '.cf-log-form-data')
-        .forEach(element => element.addEventListener('click', event => {
-            console.log(this.form);
-            console.log(JSON.stringify(this.form));
-        }));
-}
-
-export function registerOpenFormPreviewEvent() {
-    Utils.querySelectorAll(this.form, '.cf-open-preview')
-        .forEach(element => element.addEventListener('click', event => this.preview()));
-}
-
-export function registerCloseFormPreviewEvent() {
-    Utils.querySelectorAll(this.form, '.cf-close-preview')
-        .forEach(element => element.addEventListener('click', event => this.closePreview()));
-}

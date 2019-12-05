@@ -4,19 +4,13 @@ export default {
         data: `
         <div id="{{vm.form.id}}" class="cf-form-builder">
             <div class="cf-editor cf-border">
-                <div>
-                    <button class="cf-open-preview cf-button">Preview Form</button>
-                    <button class="cf-close-preview cf-hidden cf-button">Close Preview</button>
-                    <button class="cf-log-form-data cf-button">Log Form Data to Console</button>
-                    <hr/>
-                </div>
                 <form class="cf-form">
                 </form>
-                <div class="cf-config cf-border cf-hidden"></div>
+                <div class="cf-config cf-border cf-hidden"></div>   
             </div>
             <div class="cf-component-templates cf-border">
                 {{#vm.componentTemplates}}
-                <button class="cf-component-template cf-button" data-cf-component-template-name="{{name}}">{{title}}</button>
+                <button class="cf-component-template cf-button" data-cf-component-name="{{name}}">{{title}}</button>
                 {{/vm.componentTemplates}}
             </div>
         </div>
@@ -28,7 +22,7 @@ export default {
         {{#vm.sections}}
         <div id="{{id}}" class="cf-section">
             {{#components}}
-            <div id="{{id}}" class="cf-component cf-border" data-cf-component-template-name="{{templateName}}">
+            <div id="{{id}}" class="cf-component cf-border">
                 {{{render}}}
             </div>
             {{/components}}

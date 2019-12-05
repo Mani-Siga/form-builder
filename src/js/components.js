@@ -1,5 +1,6 @@
 import * as Utils from './utils.js'
 import Templates from './templates.js'
+import Condition from './conditions.js'
 
 export class Component {
     constructor(title, type, required, options, name, templateId) {
@@ -14,6 +15,9 @@ export class Component {
 
         this.conditions = [];
         this.currentValues = [];
+
+        this.hasOptions = Array.isArray(this.options);
+        this.isHiddenByDefault = this.conditions.length > 0 ? this.conditions[0].thenRule.isHidden : false;
     }
 
     toJSON() {
@@ -31,19 +35,30 @@ export class Component {
     }
 
     render() {
-        this.currentValues = [];
-        this.hasOptions = Array.isArray(this.options);
-
-        if (this.conditions.length > 0) {
-            this.isHiddenByDefault = this.conditions[0].thenRule.isHidden;
-        }
-
         let template = Object.values(Templates)
             .find(t => t.id === this.templateId);
 
         return Utils.render(template.data, {
             vm: this
         });
+    }
+
+    static parse(componentData) {
+        let component = new Component();
+        component.id = componentData.id;
+        component.title = componentData.title;
+        component.type = componentData.type;
+        component.required = componentData.required;
+        component.options = componentData.options;
+        component.name = componentData.name;
+        component.templateId = componentData.templateId;
+        
+        componentData.conditions.forEach(conditionData => component.conditions.push(Condition.parse(conditionData)));
+
+        component.currentValues = componentData.currentValues;
+        component.hasOptions = Array.isArray(componentData.options);
+        component.isHiddenByDefault = componentData.conditions.length > 0 ? componentData.conditions[0].thenRule.isHidden : false;
+        return component;
     }
 }
 

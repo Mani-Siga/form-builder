@@ -26,30 +26,7 @@ import Sortable from 'sortablejs';
         }
 
         render(mainContainer, formData) {
-            if (formData) {
-                this.form.id = formData.id;
-
-                formData.sections.forEach(formSection => {
-                    let section = new FormSection();
-                    section.id = formSection.id;
-                    this.form.sections.push(section);
-
-                    formSection.components.forEach(formComponent => {
-                        let component = new Component();
-                        component.id = formComponent.id;
-                        component.title = formComponent.title;
-                        component.type = formComponent.type;
-                        component.required = formComponent.required;
-                        component.options = formComponent.options;
-                        component.name = formComponent.name;
-                        component.templateId = formComponent.templateId;
-                        component.conditions = formComponent.conditions;
-                        component.currentValues = formComponent.currentValues;
-
-                        section.components.push(component);
-                    });
-                });
-            }
+            this.form = formData ? Form.parse(formData) : this.form;
 
             document.getElementById(mainContainer.id)
                 .innerHTML = Utils.render(Templates.MainTemplate.data, {
@@ -61,9 +38,29 @@ import Sortable from 'sortablejs';
 
             this.buildForm();
             this.setupDragDrop();
-            EventRegistrations.registerLogFormDataEvent.apply(this);
-            EventRegistrations.registerOpenFormPreviewEvent.apply(this);
-            EventRegistrations.registerCloseFormPreviewEvent.apply(this);
+        }
+
+        get renderedHTML() {
+            return JSON.stringify(this.form);
+        }
+
+        get isInPreviewMode() {
+            return Utils.querySelector(this.form, '.cf-component-templates')
+                .classList.contains('cf-hidden');
+        }
+
+        openPreview() {
+            this.buildForm();
+            Utils.evaluateConditions(this.form);
+            Utils.querySelector(this.form, '.cf-component-templates')
+                .classList.add('cf-hidden');
+        }
+
+        closePreview() {
+            Utils.querySelector(this.form, '.cf-component-templates')
+                .classList.remove('cf-hidden')
+
+            this.buildForm();
         }
 
         buildForm() {
@@ -81,36 +78,6 @@ import Sortable from 'sortablejs';
             let configDialogElement = Utils.querySelector(this.form, '.cf-config');
             formElement.classList.remove('cf-hidden');
             configDialogElement.classList.add('cf-hidden');
-        }
-
-        isInPreviewMode() {
-            return !Utils.querySelector(this.form, '.cf-close-preview')
-                .classList.contains('cf-hidden');
-        }
-
-        preview() {
-            event.preventDefault();
-
-            this.buildForm();
-
-            Utils.querySelector(this.form, '.cf-component-templates')
-                .classList.add('cf-hidden');
-            Utils.querySelector(this.form, '.cf-open-preview')
-                .classList.add('cf-hidden');
-            Utils.querySelector(this.form, '.cf-close-preview')
-                .classList.remove('cf-hidden');
-            Utils.evaluateConditions(this.form);
-        }
-
-        closePreview() {
-            event.preventDefault();
-
-            Utils.querySelector(this.form, '.cf-close-preview')
-                .classList.add('cf-hidden');
-            Utils.querySelectorAll(this.form, '.cf-component-templates, .cf-open-preview')
-                .forEach(element => element.classList.remove('cf-hidden'));
-
-            this.buildForm();
         }
 
         reorder() {
@@ -199,7 +166,7 @@ import Sortable from 'sortablejs';
 
         createComponent(event) {
             if (event.from.classList.contains('cf-component-templates')) {
-                let templateName = event.item.getAttribute('data-cf-component-template-name');
+                let templateName = event.item.getAttribute('data-cf-component-name');
                 let template = ComponentTemplates.find(t => t.name === templateName);
 
                 let section = null;
@@ -276,12 +243,12 @@ import Sortable from 'sortablejs';
         }
 
         editConfiguration(data) {
-            if (this.isInPreviewMode()) return;
+            if (this.isInPreviewMode) return;
             localStorage.setItem(`configuration-${this.form.id}`, data);
 
-            let component = JSON.parse(data);
+            let component = Component.parse(JSON.parse(data));
             let otherComponents = Utils.getAllComponents(this.form)
-                .filter(c => c.id !== component.id && !['header', 'label'].includes(c.templateName));
+                .filter(c => c.id !== component.id && !['header', 'label'].includes(c.name));
 
             Utils.querySelector(this.form, '.cf-config')
                 .innerHTML = Utils.render(Templates.ConditionTemplate.data, {
@@ -333,7 +300,7 @@ import Sortable from 'sortablejs';
 
         getInMemoryConfiguration() {
             let configForm = Utils.querySelector(this.form, '.cf-config-form');
-            let component = JSON.parse(localStorage.getItem(`configuration-${this.form.id}`));
+            let component = Component.parse(JSON.parse(localStorage.getItem(`configuration-${this.form.id}`)));
 
             component.title = configForm.componentTitle.value;
             component.required = configForm.componentRequired.checked;
@@ -390,7 +357,7 @@ import Sortable from 'sortablejs';
         }
 
         evaluateConditions(event) {
-            if (!this.isInPreviewMode()) return;
+            if (!this.isInPreviewMode) return;
 
             let componentElement = event.target.closest('.cf-component');
 

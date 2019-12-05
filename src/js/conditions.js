@@ -19,4 +19,12 @@ export default class Condition {
         this.ifRule = ifRule;
         this.thenRule = thenRule;
     }
+
+    static parse(conditionData) {
+        let condition = new Condition();
+        condition.ifRule.otherComponentId = conditionData.ifRule.otherComponentId;
+        condition.ifRule.otherComponentValue = conditionData.ifRule.otherComponentValue;
+        condition.thenRule.isHidden = conditionData.thenRule.isHidden;
+        return condition;
+    }
 }
