@@ -166,8 +166,7 @@ import Sortable from 'sortablejs';
 
         createComponent(event) {
             if (event.from.classList.contains('cf-component-templates')) {
-                let templateName = event.item.getAttribute('data-cf-component-name');
-                let template = ComponentTemplates.find(t => t.name === templateName);
+                let template = ComponentTemplates.find(t => t.name === event.item.getAttribute('data-cf-component-name'));
 
                 let section = null;
                 let sectionElement = event.target.closest('.cf-section');
@@ -367,15 +366,15 @@ import Sortable from 'sortablejs';
                 if (component) {
                     let selectedValues = [];
 
-                    if (['dropdownlist'].includes(component.templateName)) {
+                    if (['dropdownlist'].includes(component.name)) {
                         selectedValues.push(event.target.options[event.target.selectedIndex].text);
-                    } else if (['checkboxgroup'].includes(component.templateName)) {
+                    } else if (['checkboxgroup'].includes(component.name)) {
                         Array.from(componentElement.querySelectorAll('span>input[type=checkbox]'))
                             .filter(checkbox => checkbox.checked)
                             .map(checkbox => {
                                 selectedValues.push(checkbox.getAttribute('data-value'));
                             });
-                    } else if (['radiogroup'].includes(component.templateName)) {
+                    } else if (['radiogroup'].includes(component.name)) {
                         selectedValues.push(event.target.getAttribute('data-value'));
                     } else {
                         selectedValues.push(event.target.value);
