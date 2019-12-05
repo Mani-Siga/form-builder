@@ -26,21 +26,16 @@
     <div class="container">
         <span>
             <button id="openPreview"
-                    class="cf-button"
-                    onclick="openPreview()">Preview</button>
+                    class="cf-button">Preview</button>
             <button id="closePreview"
-                    class="cf-button cf-hidden"
-                    onclick="closePreview()">Close Preview</button>
-            <button class="cf-button"
-                    onclick="logData()">Log Data</button>
+                    class="cf-button cf-hidden">Close Preview</button>
+            <button id="logData"
+                    class="cf-button">Log Data</button>
         </span>
         <div id="form-builder"></div>
     </div>
     <script src="./js/index.js"></script>
-    <script>
-        let formBuilder = new FormBuilder();
-        formBuilder.render(document.getElementById('form-builder'));
-
+    <script type="text/javascript">
         function openPreview() {
             document.getElementById('openPreview').classList.add('cf-hidden');
             document.getElementById('closePreview').classList.remove('cf-hidden');
@@ -56,6 +51,13 @@
         function logData() {
             console.log(formBuilder.renderedHTML);
         }
+
+        let formBuilder = new FormBuilder();
+        formBuilder.render(document.getElementById('form-builder'));
+
+        document.getElementById('logData').addEventListener('click', event => logData());
+        document.getElementById('openPreview').addEventListener('click', event => openPreview());
+        document.getElementById('closePreview').addEventListener('click', event => closePreview());
     </script>
 </body>
 
