@@ -13,7 +13,7 @@
     <style>
         .container {
             margin: 10px;
-            padding: 10px;;
+            padding: 10px;
             display: grid;
             grid-gap: 10px;
             grid-template-rows: auto 1fr;
@@ -25,16 +25,37 @@
 <body>
     <div class="container">
         <span>
-            <button class="cf-button" onclick="formBuilder.openPreview()">Preview</button>
-            <button class="cf-button" onclick="formBuilder.closePreview()">Close Preview</button>
-            <button class="cf-button" onclick="console.log(formBuilder.renderedHTML   )">Rendered HTML</button>
+            <button id="openPreview"
+                    class="cf-button"
+                    onclick="openPreview()">Preview</button>
+            <button id="closePreview"
+                    class="cf-button cf-hidden"
+                    onclick="closePreview()">Close Preview</button>
+            <button class="cf-button"
+                    onclick="logData()">Log Data</button>
         </span>
         <div id="form-builder"></div>
     </div>
     <script src="./js/index.js"></script>
     <script>
         let formBuilder = new FormBuilder();
-        formBuilder.render(document.getElementById('form-builder'))
+        formBuilder.render(document.getElementById('form-builder'));
+
+        function openPreview() {
+            document.getElementById('openPreview').classList.add('cf-hidden');
+            document.getElementById('closePreview').classList.remove('cf-hidden');
+            formBuilder.openPreview();
+        }
+
+        function closePreview() {
+            document.getElementById('closePreview').classList.add('cf-hidden');
+            document.getElementById('openPreview').classList.remove('cf-hidden');
+            formBuilder.closePreview();
+        }
+
+        function logData() {
+            console.log(formBuilder.renderedHTML);
+        }
     </script>
 </body>
 
