@@ -5,9 +5,9 @@ export default {
         <div id="{{vm.form.id}}" class="cf-form-builder">
             <div class="cf-editor cf-border">
                 <div>
-                    <button class="cf-open-preview">Preview Form</button>
-                    <button class="cf-close-preview cf-hidden">Close Preview</button>
-                    <button class="cf-log-form-data">Log Form Data to Console</button>
+                    <button class="cf-open-preview cf-button">Preview Form</button>
+                    <button class="cf-close-preview cf-hidden cf-button">Close Preview</button>
+                    <button class="cf-log-form-data cf-button">Log Form Data to Console</button>
                     <hr/>
                 </div>
                 <form class="cf-form">
@@ -16,7 +16,7 @@ export default {
             </div>
             <div class="cf-component-templates cf-border">
                 {{#vm.componentTemplates}}
-                <button class="cf-component-template" data-cf-component-template-name="{{name}}">{{title}}</button>
+                <button class="cf-component-template cf-button" data-cf-component-template-name="{{name}}">{{title}}</button>
                 {{/vm.componentTemplates}}
             </div>
         </div>
@@ -51,17 +51,17 @@ export default {
         data: `
         <form class="cf-config-form" data-component-id="{{vm.component.id}}">
             <div class="cf-config-controls">
-                <input type="submit" class="cf-config-save" value="Save">
-                <input type="button" class="cf-config-close" value="Close">
+                <input type="submit" class="cf-config-save cf-button" value="Save">
+                <input type="button" class="cf-config-close cf-button" value="Close">
                 {{#vm.component.hasOptions}}
-                <button class="cf-config-add-option">Add Option</button>
+                <button class="cf-config-add-option cf-button">Add Option</button>
                 {{/vm.component.hasOptions}}
                 {{#vm.otherComponents.length}}
-                <button class="cf-config-add-condition">Add Condition</button>
+                <button class="cf-config-add-condition cf-button">Add Condition</button>
                 {{/vm.otherComponents.length}}
             </div>
             <hr/>
-            <table>
+            <table class="table table-striped table-hovered">
                 <tbody> 
                     <tr>
                         <td><strong>Name</strong></td>
@@ -88,7 +88,7 @@ export default {
                             <input class="cf-component-option-value" value="{{value}}" required>
                         </td>
                         <td>
-                            <button class="cf-config-delete-option" data-component-option-key="{{key}}">Delete</button>
+                            <button class="cf-config-delete-option cf-button" data-component-option-key="{{key}}">Delete</button>
                         </td>
                     </tr>
                     {{/vm.component.options}}
@@ -124,7 +124,7 @@ export default {
                             <div class="cf-component-condition-if-value-list"></div>
                         </td>
                         <td>
-                            <button class="cf-config-delete-condition" data-component-condition-id="{{id}}">Delete</button>
+                            <button class="cf-config-delete-condition cf-button" data-component-condition-id="{{id}}">Delete</button>
                         </td>
                     </tr>
                     {{/vm.component.conditions}}

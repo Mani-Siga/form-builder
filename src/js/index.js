@@ -9,8 +9,8 @@ import {
 import Condition from './conditions';
 
 import {
-    Component,
-    ComponentTemplates
+    ComponentTemplates,
+    Component
 } from './components.js';
 
 import * as Utils from './utils.js';
@@ -25,7 +25,32 @@ import Sortable from 'sortablejs';
             this.form = new Form();
         }
 
-        render(mainContainer) {
+        render(mainContainer, formData) {
+            if (formData) {
+                this.form.id = formData.id;
+
+                formData.sections.forEach(formSection => {
+                    let section = new FormSection();
+                    section.id = formSection.id;
+                    this.form.sections.push(section);
+
+                    formSection.components.forEach(formComponent => {
+                        let component = new Component();
+                        component.id = formComponent.id;
+                        component.title = formComponent.title;
+                        component.type = formComponent.type;
+                        component.required = formComponent.required;
+                        component.options = formComponent.options;
+                        component.name = formComponent.name;
+                        component.templateId = formComponent.templateId;
+                        component.conditions = formComponent.conditions;
+                        component.currentValues = formComponent.currentValues;
+
+                        section.components.push(component);
+                    });
+                });
+            }
+
             document.getElementById(mainContainer.id)
                 .innerHTML = Utils.render(Templates.MainTemplate.data, {
                     vm: {
