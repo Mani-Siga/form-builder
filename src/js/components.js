@@ -1,106 +1,122 @@
 import * as Utils from './utils.js'
-import * as Templates from './templates.js'
+import Templates from './templates.js'
 
-class Component {
-    constructor(title, type, required, options, templateName, template) {
+export class Component {
+    constructor(title, type, required, options, name, templateId) {
+        this.id = Utils.uniqueId();
+
         this.title = title;
         this.type = type;
         this.required = required;
         this.options = options;
-        this.templateName = templateName;
-        this.template = template;
+        this.name = name;
+        this.templateId = templateId;
 
-        this.id = Utils.uniqueId();
-        this.name = Utils.uniqueId();
         this.conditions = [];
         this.currentValues = [];
     }
 
+    toJSON() {
+        return {
+            id: this.id,
+            title: this.title,
+            type: this.type,
+            required: this.required,
+            options: this.options,
+            name: this.name,
+            templateId: this.templateId,
+            conditions: this.conditions,
+            currentValues: this.currentValues
+        }
+    }
+
     render() {
         this.currentValues = [];
+        this.hasOptions = Array.isArray(this.options);
 
         if (this.conditions.length > 0) {
             this.isHiddenByDefault = this.conditions[0].thenRule.isHidden;
         }
 
-        this.hasOptions = Array.isArray(this.options);
+        let template = Object.values(Templates)
+            .find(t => t.id === this.templateId);
 
-        return Utils.render(this.template, {
+        return Utils.render(template.data, {
             vm: this
         });
     }
 }
 
-export default [{
+export const ComponentTemplates = [{
         name: 'header',
         title: 'Header',
         copyTo(section) {
-            let component = new Component(this.title, '', false, null, this.name, Templates.HeaderTemplate);
-            section.addComponent(component)
+            let component = new Component(this.title, '', false, null, this.name, Templates.HeaderTemplate.id);
+            section.components.push(component)
         }
     },
     {
         name: 'label',
         title: 'Label',
         copyTo(section) {
-            let component = new Component(this.title, '', false, null, this.name, Templates.LabelTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, '', false, null, this.name, Templates.LabelTemplate.id);
+            section.components.push(component);
         }
     },
     {
         name: 'input',
         title: 'Input',
         copyTo(section) {
-            let component = new Component(this.title, 'text', false, null, this.name, Templates.InputTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, 'text', false, null, this.name, Templates.InputTemplate.id);
+            section.components.push(component);
         }
     },
     {
         name: 'email',
         title: 'Email',
         copyTo(section) {
-            let component = new Component(this.title, 'email', false, null, this.name, Templates.InputTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, 'email', false, null, this.name, Templates.InputTemplate.id);
+            section.components.push(component);
         }
     },
     {
         name: 'date',
         title: 'Date',
         copyTo(section) {
-            let component = new Component(this.title, 'date', false, null, this.name, Templates.InputTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, 'date', false, null, this.name, Templates.InputTemplate.id);
+            section.components.push(component);
         }
     },
     {
         name: 'time',
         title: 'Time',
         copyTo(section) {
-            let component = new Component(this.title, 'time', false, null, this.name, Templates.InputTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, 'time', false, null, this.name, Templates.InputTemplate.id);
+            section.components.push(component);
         }
     },
     {
         name: 'number',
         title: 'Number',
         copyTo(section) {
-            let component = new Component(this.title, 'number', false, null, this.name, Templates.InputTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, 'number', false, null, this.name, Templates.InputTemplate.id);
+            section.components.push(component);
         }
     },
     {
         name: 'file',
         title: 'File',
         copyTo(section) {
-            let component = new Component(this.title, 'file', false, null, this.name, Templates.InputTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, 'file', false, null, this.name, Templates.InputTemplate.id);
+            section.components.push(component);
         }
     },
     {
         name: 'textarea',
         title: 'Text Area',
         copyTo(section) {
-            let component = new Component(this.title, '', false, null, this.name, Templates.TextareaTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, '', false, null, this.name, Templates.TextareaTemplate.id);
+            section.components.push(component);
         }
     },
     {
@@ -117,8 +133,8 @@ export default [{
                 }
             });
 
-            let component = new Component(this.title, '', false, options, this.name, Templates.CheckboxGroupTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, '', false, options, this.name, Templates.CheckboxGroupTemplate.id);
+            section.components.push(component);
         }
     },
     {
@@ -134,8 +150,8 @@ export default [{
                 }
             });
 
-            let component = new Component(this.title, '', false, options, this.name, Templates.RadioGroupTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, '', false, options, this.name, Templates.RadioGroupTemplate.id);
+            section.components.push(component);
         }
     },
     {
@@ -151,8 +167,8 @@ export default [{
                 }
             });
 
-            let component = new Component(this.title, '', false, options, this.name, Templates.DropdownListTemplate);
-            section.addComponent(component);
+            let component = new Component(this.title, '', false, options, this.name, Templates.DropdownListTemplate.id);
+            section.components.push(component);
         }
     }
 ];

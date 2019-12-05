@@ -14,6 +14,7 @@
     "author": "stackpond@gmail.com",
     "license": "ISC",
     "dependencies": {
+        "ajv": "^6.10.2",
         "express": "^4.17.1",
         "mustache": "^3.1.0",
         "serve-static": "^1.14.1",

@@ -1,12 +1,20 @@
 import 'spectre.css'
 import '../css/index.css'
 
-import Form from './form.js';
+import {
+    Form,
+    FormSection
+} from './form.js';
+
 import Condition from './conditions';
-import ComponentTemplates from './components.js';
+
+import {
+    Component,
+    ComponentTemplates
+} from './components.js';
 
 import * as Utils from './utils.js';
-import * as Templates from './templates.js'
+import Templates from './templates.js'
 import * as EventRegistrations from './eventRegistrations.js'
 
 import Sortable from 'sortablejs';
@@ -19,7 +27,7 @@ import Sortable from 'sortablejs';
 
         render(mainContainer) {
             document.getElementById(mainContainer.id)
-                .innerHTML = Utils.render(Templates.MainTemplate, {
+                .innerHTML = Utils.render(Templates.MainTemplate.data, {
                     vm: {
                         form: this.form,
                         componentTemplates: ComponentTemplates
@@ -28,20 +36,21 @@ import Sortable from 'sortablejs';
 
             this.buildForm();
             this.setupDragDrop();
+            EventRegistrations.registerLogFormDataEvent.apply(this);
+            EventRegistrations.registerOpenFormPreviewEvent.apply(this);
+            EventRegistrations.registerCloseFormPreviewEvent.apply(this);
         }
 
         buildForm() {
             let formElement = Utils.querySelector(this.form, '.cf-form');
 
-            formElement.innerHTML = Utils.render(Templates.FormTemplate, {
+            formElement.innerHTML = Utils.render(Templates.FormTemplate.data, {
                 vm: this.form
             });
 
             this.refreshDragDrop();
             EventRegistrations.registerConfigurationOpenedEvent.apply(this);
             EventRegistrations.registerFormInputChangedEvent.apply(this);
-            EventRegistrations.registerOpenFormPreviewEvent.apply(this);
-            EventRegistrations.registerCloseFormPreviewEvent.apply(this);
 
             // Show form
             let configDialogElement = Utils.querySelector(this.form, '.cf-config');
@@ -88,7 +97,9 @@ import Sortable from 'sortablejs';
                     let existingSection = Utils.getSection(existingForm, sectionElement.id);
 
                     if (existingSection) {
-                        let newSection = reorderedForm.addSection();
+
+                        let newSection = new FormSection();
+                        reorderedForm.sections.push(newSection);
 
                         sectionElement.querySelectorAll('.cf-component')
                             .forEach(componentElement => {
@@ -170,7 +181,8 @@ import Sortable from 'sortablejs';
                 let sectionElement = event.target.closest('.cf-section');
 
                 if (!sectionElement) {
-                    section = this.form.addSection();
+                    section = new FormSection();
+                    this.form.sections.push(section);
                 } else {
                     section = Utils.getSection(this.form, sectionElement.id);
                 }
@@ -179,9 +191,11 @@ import Sortable from 'sortablejs';
                 this.buildForm();
             } else if (event.from.classList.contains('cf-section')) {
                 if (event.to.classList.contains('cf-form')) {
-                    let section = this.form.addSection();
+                    let section = new FormSection();
+                    this.form.sections.push(section);
+
                     let component = Utils.getComponent(this.form, event.item.id);
-                    section.addComponent(component);
+                    section.components.push(component);
 
                     let sourceSection = Utils.getSection(this.form, event.from.id)
                     sourceSection.components = sourceSection.components.filter(c => c.id !== component.id);
@@ -245,7 +259,7 @@ import Sortable from 'sortablejs';
                 .filter(c => c.id !== component.id && !['header', 'label'].includes(c.templateName));
 
             Utils.querySelector(this.form, '.cf-config')
-                .innerHTML = Utils.render(Templates.ConditionTemplate, {
+                .innerHTML = Utils.render(Templates.ConditionTemplate.data, {
                     vm: {
                         component: component,
                         otherComponents: otherComponents
@@ -264,7 +278,7 @@ import Sortable from 'sortablejs';
 
                     if (otherComponentId) {
                         configForm.querySelector(".cf-component-condition-if-value-list")
-                            .innerHTML = Utils.render(Templates.IfValueDataListTemplate, {
+                            .innerHTML = Utils.render(Templates.IfValueDataListTemplate.data, {
                                 vm: otherComponent
                             });
                     }
@@ -275,13 +289,12 @@ import Sortable from 'sortablejs';
                         if (otherComponentId) {
                             let otherComponent = Utils.getComponent(this.form, otherComponentId);
                             configForm.querySelector(".cf-component-condition-if-value-list")
-                                .innerHTML = Utils.render(Templates.IfValueDataListTemplate, {
+                                .innerHTML = Utils.render(Templates.IfValueDataListTemplate.data, {
                                     vm: otherComponent
                                 });
                         }
                     });
                 });
-
 
             EventRegistrations.registerConfigurationSavedEvent.apply(this);
             EventRegistrations.registerConfigurationClosedEvent.apply(this);
@@ -323,7 +336,6 @@ import Sortable from 'sortablejs';
             conditionnRows.forEach((conditionRow, conditionIndex) => {
                 let condition = new Condition();
                 condition.id = conditionRow.getAttribute('data-component-condition-id');
-                console.log(condition.id)
                 condition.ifRule.otherComponentId = conditionOtherComponentSelectors[conditionIndex].value;
                 condition.ifRule.otherComponentValue = conditionOtherComponentIfValues[conditionIndex].value;
                 condition.thenRule.isHidden = configForm.elements.componentVisibility.value === 'hide';
@@ -349,8 +361,6 @@ import Sortable from 'sortablejs';
                 component.required = clonedComponent.required;
                 component.options = clonedComponent.options;
                 component.conditions = clonedComponent.conditions;
-
-                console.log(component);
             }
         }
 
